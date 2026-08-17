@@ -1,4 +1,4 @@
-# linuxcmd
+# linuXwin
 
 <p align="center">
   <a href="https://github.com/khanalsaroj/linuXwin/actions/workflows/release.yml"><img src="https://github.com/khanalsaroj/linuXwin/actions/workflows/release.yml/badge.svg" /></a>
