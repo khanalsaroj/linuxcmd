@@ -1,0 +1,4 @@
+cd=for /f "usebackq delims=" %i in (`"%LINUXCMD_HOME%\cd.exe" $*`) do @cd /d "%i"
+mkdir=%LINUXCMD_HOME%\mkdir.exe $*
+rmdir=%LINUXCMD_HOME%\rmdir.exe $*
+echo=%LINUXCMD_HOME%\echo.exe $*
