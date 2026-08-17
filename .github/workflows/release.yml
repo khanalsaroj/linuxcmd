@@ -163,14 +163,16 @@ jobs:
             fi
           }
 
+          # Patterns are anchored on "^- " because git log's "- %s" format
+          # prepends that to every subject line.
           add_section "Breaking Changes" "!:|BREAKING CHANGE"
-          add_section "Features" "^feat"
-          add_section "Bug Fixes" "^fix"
+          add_section "Features" "^- feat"
+          add_section "Bug Fixes" "^- fix"
 
           if [ -z "$PREV_TAG" ]; then
-            OTHER=$(git log --pretty=format:"- %s" | grep -Ev "^(feat|fix)|!:|BREAKING CHANGE" || echo "")
+            OTHER=$(git log --pretty=format:"- %s" | grep -Ev "^- (feat|fix)|!:|BREAKING CHANGE" || echo "")
           else
-            OTHER=$(git log "$PREV_TAG..HEAD" --pretty=format:"- %s" | grep -Ev "^(feat|fix)|!:|BREAKING CHANGE" || echo "")
+            OTHER=$(git log "$PREV_TAG..HEAD" --pretty=format:"- %s" | grep -Ev "^- (feat|fix)|!:|BREAKING CHANGE" || echo "")
           fi
           if [ -n "$OTHER" ]; then
             echo "## Other Changes" >> "$NOTES"
