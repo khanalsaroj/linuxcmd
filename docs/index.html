@@ -6,11 +6,11 @@
 <title>Linux Commands on Windows | linuxcmd</title>
 <meta name="description" content="linuxcmd brings ls, grep, cat, and 17 more familiar Linux commands straight into normal Windows CMD — no WSL, no Bash, no virtual machine. Install once, open CMD, start typing.">
 <meta name="theme-color" content="#0a0c10">
-<link rel="canonical" href="https://khanalsaroj.github.io/linuXwin/">
+<link rel="canonical" href="https://khanalsaroj.github.io/linuxcmd/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="linuxcmd — Linux commands, native on Windows">
 <meta property="og:description" content="Use familiar Linux commands directly from the normal Windows CMD terminal. No WSL. No Linux VM. No Bash environment.">
-<meta property="og:url" content="https://khanalsaroj.github.io/linuXwin/">
+<meta property="og:url" content="https://khanalsaroj.github.io/linuxcmd/">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linuxcmd — Linux commands, native on Windows">
 <meta name="twitter:description" content="Use familiar Linux commands directly from the normal Windows CMD terminal. No WSL. No Linux VM. No Bash environment.">
@@ -610,10 +610,10 @@
    * ------------------------------------------------------------- */
   const CONFIG = {
     projectName: "linuxcmd",
-    githubUrl: "https://github.com/khanalsaroj/linuXwin",
-    downloadUrl: "https://github.com/khanalsaroj/linuXwin/releases/latest",
-    docsUrl: "https://github.com/khanalsaroj/linuXwin#readme",
-    installCommand: 'iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuXwin/main/main/install.ps1 | iex'
+    githubUrl: "https://github.com/khanalsaroj/linuxcmd",
+    downloadUrl: "https://github.com/khanalsaroj/linuxcmd/releases/latest",
+    docsUrl: "https://github.com/khanalsaroj/linuxcmd#readme",
+    installCommand: 'iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 | iex'
   };
 
   document.querySelectorAll("[data-cfg]").forEach(function(el){
@@ -848,7 +848,7 @@
    * Install command copy
    * ------------------------------------------------------------- */
   document.getElementById('installCmdText').innerHTML =
-    'iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuXwin/main/main/install.ps1 <span class="fn">|</span> iex';
+    'iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 <span class="fn">|</span> iex';
 
   document.getElementById('copyInstallBtn').addEventListener('click', function(){
     const btn = this;

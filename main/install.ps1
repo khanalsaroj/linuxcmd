@@ -1,6 +1,6 @@
 # linuxcmd installer for Windows (PowerShell).
 #
-#   iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuXwin/main/main/install.ps1 | iex
+#   iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 | iex
 #
 # Downloads the latest (or pinned) release archive, verifies its checksum,
 # and hands off to the repo's own installer/install.ps1 -- which does the
@@ -15,7 +15,7 @@
 #   $env:LINUXCMD_ENABLE_DOSKEY    set to "1" to also enable the cd/mkdir/rmdir/echo DOSKEY layer
 $ErrorActionPreference = "Stop"
 
-$Repo = "khanalsaroj/linuXwin"
+$Repo = "khanalsaroj/linuxcmd"
 $BinName = "linuxcmd"
 $InstallDir = if ($env:LINUXCMD_INSTALL_DIR) { $env:LINUXCMD_INSTALL_DIR } else { "$env:LOCALAPPDATA\Programs\LinuxCmd" }
 
