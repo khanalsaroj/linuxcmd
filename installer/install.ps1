@@ -58,7 +58,7 @@ else {
     Write-Host "No prebuilt binary found; building from source ..."
     Push-Location $repoRoot
     try {
-        & go build -o $enginePath ./cmd/linuxcmd
+        & go build -ldflags "-X linuxcmd/internal/version.Version=dev" -o $enginePath ./cmd/linuxcmd
         if ($LASTEXITCODE -ne 0) { throw "go build failed with exit code $LASTEXITCODE" }
     }
     finally {

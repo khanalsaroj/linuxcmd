@@ -20,10 +20,16 @@
 .PARAMETER OutDir
     Where to place linuxcmd.exe and the per-command launchers. Defaults to
     .\dist next to this script's repo root.
+
+.PARAMETER Version
+    Embedded into internal/version.Version via -ldflags, surfaced by
+    `linuxcmd --version`. Defaults to "dev" for local builds; release.yml
+    passes the actual tag for published builds.
 #>
 [CmdletBinding()]
 param(
-    [string]$OutDir = (Join-Path $PSScriptRoot "..\dist")
+    [string]$OutDir = (Join-Path $PSScriptRoot "..\dist"),
+    [string]$Version = "dev"
 )
 
 $ErrorActionPreference = "Stop"
@@ -34,10 +40,10 @@ New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
 $enginePath = Join-Path $OutDir "linuxcmd.exe"
 
-Write-Host "Building linuxcmd.exe ..." -ForegroundColor Cyan
+Write-Host "Building linuxcmd.exe (version $Version) ..." -ForegroundColor Cyan
 Push-Location $repoRoot
 try {
-    & go build -o $enginePath ./cmd/linuxcmd
+    & go build -ldflags "-X linuxcmd/internal/version.Version=$Version" -o $enginePath ./cmd/linuxcmd
     if ($LASTEXITCODE -ne 0) {
         throw "go build failed with exit code $LASTEXITCODE"
     }

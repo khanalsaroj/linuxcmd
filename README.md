@@ -1,5 +1,12 @@
 # linuxcmd
 
+<p align="center">
+  <img src="https://img.shields.io/badge/go-1.21+-00ADD8?logo=go&logoColor=white" />
+  <img src="https://img.shields.io/badge/platform-windows-0078D6?logo=windows&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+  <img src="https://github.com/khanalsaroj/linuXwin/actions/workflows/release.yml/badge.svg" />
+</p>
+
 A Linux command compatibility layer for the native Windows `cmd.exe` prompt, written in Go.
 
 Install it, open a normal Command Prompt window, and type `ls`, `pwd`, `cp`, `grep`, `cat`... They run as real Windows executables backed by the Go standard library and Windows APIs — no WSL, no Cygwin, no MSYS2, no Git Bash, no Linux VM.
@@ -26,14 +33,18 @@ C:\Users\you> grep -n "TODO" *.go
 - [Building](#building)
 - [Testing](#testing)
 - [Packaging](#packaging)
+- [Releases](#releases)
+- [License](#license)
 
 ## Installation
 
-Requires [Go](https://go.dev) 1.21+ on the machine doing the build (end users of a packaged release do not need Go installed).
+**Option A — download a release** (no Go required): grab the zip for your architecture (`amd64` for almost everyone) from the [Releases](https://github.com/khanalsaroj/linuXwin/releases) page, extract it anywhere, and run `installer\install.ps1` from inside the extracted folder.
+
+**Option B — build from source**: requires [Go](https://go.dev) 1.21+.
 
 ```powershell
-git clone <this repo>
-cd linuxcmd
+git clone https://github.com/khanalsaroj/linuXwin.git
+cd linuXwin
 .\scripts\build.ps1                # builds dist\linuxcmd.exe + one launcher per command
 .\installer\install.ps1            # installs to %LOCALAPPDATA%\Programs\LinuxCmd, adds it to PATH
 ```
@@ -71,7 +82,7 @@ Shell utilities: `echo`, `clear`, `whoami`, `hostname`
 Search/text: `grep`, `find`
 System/network: `ping`, `ip`, `ps`, `kill`
 
-Run `linuxcmd` with no arguments (or `linuxcmd --help`) for a live list with one-line summaries, generated from the actual command registry.
+Run `linuxcmd` with no arguments (or `linuxcmd --help`) for a live list with one-line summaries, generated from the actual command registry. `linuxcmd --version` (or `-v`) prints the installed version.
 
 ## Examples
 
@@ -261,6 +272,16 @@ go test ./... -v       # verbose
 
 For a distributable release (so end users don't need Go installed):
 
-1. `.\scripts\build.ps1` to produce `dist\`.
+1. `.\scripts\build.ps1 -Version v1.2.3` to produce `dist\` with the version embedded (`linuxcmd --version` reflects it).
 2. Ship the repo's `installer\` directory alongside `dist\`, preserving the relative layout (`install.ps1` looks for `..\dist\linuxcmd.exe` next to itself).
 3. End users run `installer\install.ps1` (optionally with `-EnableDoskeyOverrides` or `-InstallDir`) — no admin rights or Go installation required.
+
+`.github/workflows/release.yml` automates exactly this: every push to `main` that passes `go vet`/`build`/`test` bumps a semantic version from the commit message prefix (`feat:` → minor, `fix:` → patch, `BREAKING CHANGE:`/`!:` → major), cross-compiles `windows/amd64`, `windows/arm64` and `windows/386` with the version embedded via `-ldflags`, packages each into a zip with the matching `dist/` + `installer/` layout above, tags the commit, and publishes a GitHub release with generated notes and checksums.
+
+## Releases
+
+Prebuilt zips for each Windows architecture: [github.com/khanalsaroj/linuXwin/releases](https://github.com/khanalsaroj/linuXwin/releases). Each release includes `checksums.txt` (SHA-256) for the archives.
+
+## License
+
+[MIT](LICENSE) © Saroj Khanal

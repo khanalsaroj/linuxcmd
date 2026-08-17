@@ -133,6 +133,21 @@ func TestIntegrationCommandNotFound(t *testing.T) {
 	}
 }
 
+func TestIntegrationVersionFlag(t *testing.T) {
+	engine := buildEngine(t)
+	dir := t.TempDir()
+
+	for _, flag := range []string{"-v", "--version"} {
+		code, out, errOut := invoke(t, engine, dir, flag)
+		if code != 0 {
+			t.Fatalf("linuxcmd %s exit code = %d, stderr = %q", flag, code, errOut)
+		}
+		if !strings.HasPrefix(out, "linuxcmd ") {
+			t.Errorf("linuxcmd %s output = %q, want it to start with 'linuxcmd '", flag, out)
+		}
+	}
+}
+
 func TestIntegrationPerCommandLauncherDispatch(t *testing.T) {
 	engine := buildEngine(t)
 	dir := t.TempDir()

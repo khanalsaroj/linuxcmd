@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"linuxcmd/internal/command"
+	"linuxcmd/internal/version"
 	_ "linuxcmd/commands" // registers every command via init()
 )
 
@@ -43,6 +44,9 @@ func run(args []string) int {
 		switch rest[0] {
 		case "-h", "--help":
 			printUsage(os.Stdout)
+			return command.ExitSuccess
+		case "-v", "--version":
+			fmt.Fprintf(os.Stdout, "linuxcmd %s\n", version.String())
 			return command.ExitSuccess
 		case "--list-commands":
 			// Machine-readable command list (one name per line) consumed

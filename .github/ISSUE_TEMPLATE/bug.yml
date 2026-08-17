@@ -1,0 +1,91 @@
+name: Bug report
+description: Report a bug or unexpected behavior
+title: "[BUG]: "
+labels: ["bug"]
+
+body:
+  - type: input
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened?
+      placeholder: Describe the bug clearly.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: command
+    attributes:
+      label: Affected Command
+      description: Which command is involved?
+      options:
+        - ls
+        - pwd
+        - cd
+        - mkdir
+        - rmdir
+        - cp
+        - mv
+        - rm
+        - cat
+        - touch
+        - echo
+        - clear
+        - whoami
+        - hostname
+        - grep
+        - find
+        - ping
+        - ip
+        - ps
+        - kill
+        - Installer / build script
+        - Other / not command-specific
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact command(s) you ran, from a normal CMD window.
+      placeholder: |
+        1. Open Command Prompt
+        2. Run: ls -la C:\some\path
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Expected and Actual Behavior
+      description: |
+        What actually happened?
+        What should have happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `linuxcmd --version`
+      placeholder: e.g. v1.2.0
+    validations:
+      required: true
+
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows Version
+      placeholder: e.g. Windows 11 23H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Command Output
+      description: Paste the exact CMD output, including any error text.
+      render: shell

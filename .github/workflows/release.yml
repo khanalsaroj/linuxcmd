@@ -1,0 +1,193 @@
+name: Test and Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - docs/**
+      - README.md
+      - .gitignore
+      - LICENSE
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Runs on every push and PR. The release job below depends on this
+  # passing, so a broken build/test never reaches a tag or a release --
+  # unlike a pure "release on every push to main" pipeline.
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test
+        run: go test ./... -v
+
+  # Only runs on an actual push to main (not PRs), after tests pass.
+  release:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      # ---- Determine version bump from the last commit message ----
+      - name: Get commit message
+        id: commit
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Last commit: $COMMIT_MSG"
+          COMMIT_MSG_LOWER=$(echo "$COMMIT_MSG" | tr '[:upper:]' '[:lower:]')
+
+          if [[ "$COMMIT_MSG_LOWER" =~ ^breaking\ change: || "$COMMIT_MSG_LOWER" =~ !: ]]; then
+            echo "bump=major" >> "$GITHUB_OUTPUT"
+          elif [[ "$COMMIT_MSG_LOWER" =~ ^feat: ]]; then
+            echo "bump=minor" >> "$GITHUB_OUTPUT"
+          else
+            echo "bump=patch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Calculate version
+        id: version
+        env:
+          BUMP: ${{ steps.commit.outputs.bump }}
+        run: |
+          LATEST=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION=${LATEST#v}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          case "$BUMP" in
+            major) NEW_VERSION="v$((MAJOR + 1)).0.0" ;;
+            minor) NEW_VERSION="v$MAJOR.$((MINOR + 1)).0" ;;
+            patch) NEW_VERSION="v$MAJOR.$MINOR.$((PATCH + 1))" ;;
+          esac
+
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "New version will be: $NEW_VERSION"
+
+      # ---- Build + package ----
+      # linuxcmd targets Windows only (several commands use Windows-only
+      # syscall APIs), so unlike a typical Go CLI release there is no
+      # linux/darwin matrix here -- just the Windows architectures.
+      #
+      # Each archive mirrors the layout install.ps1 expects when run from
+      # a packaged release (see README.md, "Packaging"): dist/linuxcmd.exe
+      # next to an installer/ directory, so end users just unzip and run
+      # installer\install.ps1 -- no Go toolchain required on their side.
+      - name: Build and package
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p out
+
+          build_target() {
+            local arch=$1
+            local stage="pkg-$arch"
+
+            echo "Building windows/$arch..."
+            mkdir -p "$stage/dist" "$stage/installer"
+
+            GOOS=windows GOARCH=$arch go build \
+              -ldflags "-X linuxcmd/internal/version.Version=$VERSION" \
+              -o "$stage/dist/linuxcmd.exe" \
+              ./cmd/linuxcmd
+
+            cp installer/*.ps1 installer/linuxcmd.doskey "$stage/installer/"
+            cp README.md LICENSE "$stage/"
+
+            (cd "$stage" && zip -r "../out/linuxcmd-windows-${arch}.zip" .)
+            echo "Created out/linuxcmd-windows-${arch}.zip"
+          }
+
+          build_target amd64
+          build_target arm64
+          build_target 386
+
+          ls -lh out/
+
+      - name: Generate checksums
+        run: |
+          cd out
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.version }}"
+
+      # ---- Release notes from commit history since the previous tag ----
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | sed -n 2p || echo "")
+          NOTES="RELEASE_NOTES.md"
+          echo "# Release ${{ steps.version.outputs.version }}" > "$NOTES"
+          echo "" >> "$NOTES"
+
+          add_section() {
+            local title="$1" pattern="$2" result
+            if [ -z "$PREV_TAG" ]; then
+              result=$(git log --pretty=format:"- %s" | grep -E "$pattern" || echo "")
+            else
+              result=$(git log "$PREV_TAG..HEAD" --pretty=format:"- %s" | grep -E "$pattern" || echo "")
+            fi
+            if [ -n "$result" ]; then
+              echo "## $title" >> "$NOTES"
+              echo "$result" >> "$NOTES"
+              echo "" >> "$NOTES"
+            fi
+          }
+
+          add_section "Breaking Changes" "!:|BREAKING CHANGE"
+          add_section "Features" "^feat"
+          add_section "Bug Fixes" "^fix"
+
+          if [ -z "$PREV_TAG" ]; then
+            OTHER=$(git log --pretty=format:"- %s" | grep -Ev "^(feat|fix)|!:|BREAKING CHANGE" || echo "")
+          else
+            OTHER=$(git log "$PREV_TAG..HEAD" --pretty=format:"- %s" | grep -Ev "^(feat|fix)|!:|BREAKING CHANGE" || echo "")
+          fi
+          if [ -n "$OTHER" ]; then
+            echo "## Other Changes" >> "$NOTES"
+            echo "$OTHER" >> "$NOTES"
+            echo "" >> "$NOTES"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          files: |
+            out/*.zip
+            out/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
