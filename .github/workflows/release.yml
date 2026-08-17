@@ -9,6 +9,7 @@ on:
       - README.md
       - .gitignore
       - LICENSE
+      - main/install.ps1
   pull_request:
     branches:
       - main

@@ -1,10 +1,11 @@
 # linuxcmd
 
 <p align="center">
+  <a href="https://github.com/khanalsaroj/linuXwin/actions/workflows/release.yml"><img src="https://github.com/khanalsaroj/linuXwin/actions/workflows/release.yml/badge.svg" /></a>
+  <a href="https://github.com/khanalsaroj/linuXwin/releases"><img src="https://img.shields.io/github/v/release/khanalsaroj/linuXwin?sort=semver" /></a>
   <img src="https://img.shields.io/badge/go-1.21+-00ADD8?logo=go&logoColor=white" />
   <img src="https://img.shields.io/badge/platform-windows-0078D6?logo=windows&logoColor=white" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
-  <img src="https://github.com/khanalsaroj/linuXwin/actions/workflows/release.yml/badge.svg" />
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/khanalsaroj/linuXwin" /></a>
 </p>
 
 A Linux command compatibility layer for the native Windows `cmd.exe` prompt, written in Go.
@@ -38,9 +39,34 @@ C:\Users\you> grep -n "TODO" *.go
 
 ## Installation
 
-**Option A — download a release** (no Go required): grab the zip for your architecture (`amd64` for almost everyone) from the [Releases](https://github.com/khanalsaroj/linuXwin/releases) page, extract it anywhere, and run `installer\install.ps1` from inside the extracted folder.
+### 🪟 Windows (PowerShell) — one-liner
 
-**Option B — build from source**: requires [Go](https://go.dev) 1.21+.
+```powershell
+iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuXwin/main/main/install.ps1 | iex
+```
+
+Downloads the latest release for your architecture, verifies its checksum, and installs it to `%LOCALAPPDATA%\Programs\LinuxCmd`, adding it to your user PATH. No admin rights, no Go toolchain required.
+
+> Open a **new** Command Prompt window afterwards (PATH changes never apply to windows already open) and try `ls -la`.
+
+Since piping into `iex` can't take script parameters, configure it with environment variables instead:
+
+```powershell
+$env:LINUXCMD_VERSION = "v1.2.3"                                   # pin a version instead of latest
+$env:LINUXCMD_INSTALL_DIR = "D:\Tools\LinuxCmd"                    # custom install location
+$env:LINUXCMD_ENABLE_DOSKEY = "1"                                  # also enable cd/mkdir/rmdir/echo bare-word support
+iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuXwin/main/main/install.ps1 | iex
+```
+
+See [why the DOSKEY layer is opt-in](#why-cdmkdirrmdirecho-need-the-doskey-layer).
+
+### 📦 Prebuilt binaries
+
+Grab the zip for your architecture (`amd64` for almost everyone) from the [Releases](https://github.com/khanalsaroj/linuXwin/releases) page (each release ships a `checksums.txt`), extract it anywhere, and run `installer\install.ps1` from inside the extracted folder — optionally with `-EnableDoskeyOverrides` or `-InstallDir`.
+
+### 🛠️ From source
+
+Requires [Go](https://go.dev) 1.21+.
 
 ```powershell
 git clone https://github.com/khanalsaroj/linuXwin.git
@@ -49,22 +75,10 @@ cd linuXwin
 .\installer\install.ps1            # installs to %LOCALAPPDATA%\Programs\LinuxCmd, adds it to PATH
 ```
 
-Open a **new** Command Prompt window (PATH changes never apply to windows already open) and run:
+### Verify
 
 ```text
-ls -la
-```
-
-Optional: also let `cd`, `mkdir`, `rmdir` and `echo` work when typed bare (not just as `cd.exe`) — see [why this is opt-in](#why-cdmkdirrmdirecho-need-the-doskey-layer):
-
-```powershell
-.\installer\install.ps1 -EnableDoskeyOverrides
-```
-
-Custom install location:
-
-```powershell
-.\installer\install.ps1 -InstallDir "D:\Tools\LinuxCmd"
+linuxcmd --version
 ```
 
 ### Uninstalling
@@ -73,7 +87,7 @@ Custom install location:
 .\installer\uninstall.ps1
 ```
 
-Reverses everything install.ps1 did: removes the PATH entry, the optional AutoRun/DOSKEY hook, the `LINUXCMD_HOME` variable, and the installed files. Nothing outside `HKCU` (the current user's own registry hive) is ever touched, and cmd.exe itself is never modified.
+Reverses everything install.ps1 did: removes the PATH entry, the optional AutoRun/DOSKEY hook, the `LINUXCMD_HOME` variable, and the installed files. Nothing outside `HKCU` (the current user's own registry hive) is ever touched, and cmd.exe itself is never modified. If you installed to a custom directory, pass the same `-InstallDir`.
 
 ## Supported commands
 
