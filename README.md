@@ -307,6 +307,134 @@ hooks into), so this layer cannot change the behavior of existing scripts, inclu
 | `ip`       | Partial   | show/manage networking                | native via Go `net` package, `addr`/`link`            | read-only, no `iproute2` route/tunnel features                   |
 | `ps`       | Yes       | list processes                        | `syscall.CreateToolhelp32Snapshot`                    | columns limited to PID/PPID/CMD                                  |
 | `kill`     | Yes       | terminate by PID                      | `syscall.TerminateProcess`                            | no signal distinction                                            |
+| `head`     | Yes       | first lines/bytes, `-n -c -q -v`      | buffered scanner/`io.CopyN`                           | no old-style `-NUM` shorthand                                    |
+| `tail`     | Yes       | last lines/bytes, `-n -c -f -q -v`    | in-memory tail, `-f` polls for appended data          | `-f` supports one file at a time                                 |
+| `wc`       | Yes       | line/word/byte/char counts            | streaming byte scan                                   | word-splitting is ASCII-whitespace only                          |
+| `sort`     | Yes       | `-n -r -u -k`                         | `sort.SliceStable`                                    | no locale collation, single-field `-k`                           |
+| `uniq`     | Yes       | `-c -d -u`, adjacent dedup            | line scan                                             | input must already be sorted for full dedup, like GNU uniq       |
+| `cut`      | Yes       | `-f -c -d`                            | field/rune selection                                  | no `-b` (byte) mode                                               |
+| `tr`       | Yes       | translate/delete/squeeze, `a-z` ranges| rune-by-rune stream                                   | no `\`-escapes or `[:class:]` sets                                |
+| `tee`      | Yes       | `-a`                                  | `io.MultiWriter`                                      | —                                                                 |
+| `printf`   | Yes       | `%s %d %f %x %%`, `\n\t\r` escapes    | small format parser                                   | no width/precision modifiers                                     |
+| `test`     | Yes       | `-f -d -e -z -n`, string/int compare  | `os.Stat` + comparisons                               | no `-o`/`-a` combinators                                          |
+| `true`     | Yes       | exit 0                                | —                                                      | —                                                                 |
+| `false`    | Yes       | exit 1                                | —                                                      | —                                                                 |
+| `which`    | Yes       | resolve on `PATH`                     | `PATH`/`PATHEXT` search                                | —                                                                 |
+| `date`     | Yes       | `+FORMAT`, `-u`                       | Go `time` + `%`-token mapping                         | subset of strftime tokens                                        |
+| `sleep`    | Yes       | fractional seconds, `s/m/h/d` suffix  | `time.Sleep`                                          | —                                                                 |
+| `sha256sum`/`sha1sum`/`md5sum` | Yes | `-c` verify                  | Go `crypto/*` hashes                                  | —                                                                 |
+| `cksum`    | Yes       | CRC + byte count                      | `hash/crc32` (IEEE)                                   | not the exact POSIX cksum polynomial                              |
+| `zip`      | Yes       | `-r`                                  | Go `archive/zip`                                      | no password/encryption support                                   |
+| `unzip`    | Yes       | `-d`                                  | Go `archive/zip`, zip-slip safe                       | —                                                                 |
+| `tar`      | Yes       | `-c -x -t -v -z -f`                   | Go `archive/tar` + `compress/gzip`                    | no bzip2/xz                                                       |
+| `stat`     | Yes       | file metadata                         | `os.Stat` + `FormatMode`                              | no `-c FORMAT`                                                    |
+| `file`     | Yes       | magic-byte + text heuristics          | reads first 512 bytes                                 | small signature set                                               |
+| `du`       | Yes       | `-s -h`                               | `filepath.Walk`, per-dir totals                       | no hard-link double-count avoidance                               |
+| `df`       | Yes       | `-h`                                  | `GetDiskFreeSpaceExW`                                 | lists drive letters, not Unix-style mount points                  |
+| `tree`     | Yes       | `-L -a`                               | recursive `os.ReadDir`                                | —                                                                 |
+| `realpath` | Yes       | clean + resolve                       | `internal/paths` + `filepath.EvalSymlinks`             | —                                                                 |
+| `readlink` | Yes       | `-f`                                  | `os.Readlink`/`filepath.EvalSymlinks`                  | —                                                                 |
+| `pgrep`    | Yes       | `-l`, substring match                 | Tool Help snapshot                                     | matches executable filename only, not full command line          |
+| `pkill`    | Yes       | substring match                       | Tool Help snapshot + `TerminateProcess`                | matches executable filename only, not full command line          |
+| `pstree`   | Yes       | `-p`                                  | Tool Help snapshot, PID/PPID tree                       | —                                                                 |
+| `nl`       | Yes       | `-b a\|t`                             | line scan                                              | no `-i`/`-s`/`-w` customization                                   |
+| `tac`      | Yes       | reverse line order                    | buffers all lines                                      | —                                                                 |
+| `rev`      | Yes       | reverse each line                     | rune-based                                              | —                                                                 |
+| `seq`      | Yes       | `FIRST [STEP] LAST`                   | float loop                                              | no `-s`/`-f` format control                                       |
+| `yes`      | Yes       | repeat text, honors broken pipe       | batched writes                                          | —                                                                 |
+| `basename` | Yes       | strip dir + optional suffix           | `filepath.Base`                                         | —                                                                 |
+| `dirname`  | Yes       | print directory component             | `filepath.Dir`                                          | —                                                                 |
+| `expand`   | Yes       | `-t`                                  | column-tracked tab expansion                            | —                                                                 |
+| `unexpand` | Yes       | `-t -a`                               | column-tracked tabify                                   | `-a` converts every space run, not just runs of 2+               |
+| `fold`     | Yes       | `-w`                                  | rune-count wrapping                                     | no `-s` (break at word boundaries)                                |
+| `base64`   | Yes       | `-d`                                  | `encoding/base64`                                        | —                                                                 |
+| `xxd`      | Yes       | `-g -r`                               | `encoding/hex`                                           | no `-l`/`-s` offset controls                                      |
+| `strings`  | Yes       | `-n`                                  | printable-run scan                                       | —                                                                 |
+| `fmt`      | Yes       | `-w`                                  | greedy paragraph fill                                    | no hyphenation, no `-s`/`-u` modes                                |
+| `paste`    | Yes       | `-d`                                  | parallel line scan                                       | —                                                                 |
+| `join`     | Yes       | join on field 1                       | hash-join                                                | no `-1`/`-2`/`-t` field/delimiter selection                       |
+| `comm`     | Yes       | `-1 -2 -3`                            | merge of two sorted line lists                           | —                                                                 |
+| `cmp`      | Yes       | first-difference report               | byte-by-byte scan                                        | no `-l` (list all differing bytes)                                |
+| `diff`     | Yes       | normal and `-u` unified               | O(n·m) LCS dynamic-programming diff                       | not O(ND); slow on very large files                               |
+| `split`    | Yes       | `-l -b`                               | line/byte chunking, `aa`/`ab`/... suffixes                | —                                                                 |
+| `csplit`   | Yes       | line-number and `/regex/` boundaries  | line scan + `regexp`                                      | no `{N}` repeat-count syntax                                      |
+| `shuf`     | Yes       | `-n`                                  | `math/rand.Shuffle`                                       | —                                                                 |
+| `gzip`     | Yes       | `-d -k`                               | `compress/gzip`                                            | —                                                                 |
+| `ln`       | Yes       | `-s -f`                               | `os.Link`/`os.Symlink`                                     | symlinks need Developer Mode or admin rights on Windows           |
+| `mktemp`   | Yes       | `-d`, `XXXX` templates                | `os.CreateTemp`/`os.MkdirTemp`                              | —                                                                 |
+| `truncate` | Yes       | `-s`                                  | `os.Truncate`                                               | —                                                                 |
+| `sync`     | Yes       | no-op                                 | —                                                            | nothing to flush across separate per-command processes            |
+| `umask`    | Yes       | report/validate mask                  | —                                                            | cannot persist to the parent shell, like `cd`                     |
+| `uname`    | Yes       | `-a -s -n -r -m`                      | static Windows values + `runtime.GOARCH`                     | kernel-name/release are fixed strings, not real kernel version   |
+| `arch`     | Yes       | prints machine arch                   | `runtime.GOARCH` mapping                                     | —                                                                 |
+| `id`       | Yes       | uid/gid/groups                        | `os/user`                                                     | Windows has no separate primary-group SID the way Linux does     |
+| `groups`   | Yes       | group memberships                     | `os/user`                                                     | —                                                                 |
+| `uptime`   | Yes       | boot duration                         | `GetTickCount64`                                              | no load average (not exposed on Windows)                          |
+| `free`     | Yes       | `-h`                                  | `GlobalMemoryStatusEx`                                        | —                                                                 |
+| `lscpu`    | Yes       | arch, core count, model name          | `runtime.NumCPU` + `PROCESSOR_IDENTIFIER` env var             | far fewer fields than real lscpu                                  |
+| `lsmem`    | Yes       | memory totals                         | `GlobalMemoryStatusEx`                                        | no per-range breakdown                                            |
+| `nproc`    | Yes       | logical processor count               | `runtime.NumCPU`                                               | —                                                                 |
+| `getconf`  | Yes       | `PAGE_SIZE`, `_NPROCESSORS_ONLN`, `ARCH` | small lookup table                                          | tiny fixed variable set                                           |
+| `hostid`   | Yes       | machine-derived identifier            | FNV hash of hostname                                           | not Linux's actual hostid algorithm                               |
+| `tty`      | Yes       | reports console/not-console           | `os.ModeCharDevice` check                                     | —                                                                 |
+| `stty`     | Yes       | reports console mode bits             | `GetConsoleMode`                                               | read-only; no mode-changing support yet                           |
+| `getent`   | Yes       | `hosts`, `passwd`, `group`            | DNS lookup + `os/user`                                        | `passwd`/`group` limited to the current user                      |
+| `last`     | Yes       | recent sign-in events                 | wraps `wevtutil.exe` (Security log, event 4624)                | usually needs administrator rights                                 |
+| `users`    | Yes       | interactive session usernames         | Terminal Services (WTS) API                                    | —                                                                 |
+| `who`      | Yes       | active sessions                       | Terminal Services (WTS) API                                    | single fixed "console" TTY column                                 |
+| `w`        | Yes       | sessions + uptime header              | WTS API + `GetTickCount64`                                     | no idle time or per-session process info                          |
+| `top`      | Yes       | `-n -d`, refreshing snapshot          | Tool Help snapshot on a timer                                   | no CPU%/memory columns                                            |
+| `timeout`  | Yes       | kills the whole child process tree    | `taskkill /T /F` on expiry                                       | —                                                                 |
+| `time`     | Yes       | reports elapsed wall-clock time       | wraps a child process                                            | no user/sys CPU time breakdown                                    |
+| `watch`    | Yes       | `-n` interval, `-c` bounded count     | re-runs a child + ANSI clear                                     | `-c` is a linuxcmd-only extension for bounded/scripted use         |
+| `env`      | Yes       | `NAME=value` overrides                | modifies `cmd.Env`                                                | —                                                                 |
+| `printenv` | Yes       | one or all variables                  | `os.Environ`/`os.LookupEnv`                                       | —                                                                 |
+| `whereis`  | Yes       | binary + linuxcmd-registration check  | `PATH`/`PATHEXT` search + `command.Lookup`                        | no source/man-page location (linuxcmd has neither)                |
+| `nice`     | Yes       | `-n`                                  | maps nice value to a Win32 priority class                          | 6 priority classes, not a continuous -20..19 scale                |
+| `renice`   | Yes       | `-p`                                  | `OpenProcess` + `SetPriorityClass`                                  | same coarse priority-class mapping as `nice`                      |
+| `nohup`    | Yes       | detach + `nohup.out`                  | `CREATE_NEW_PROCESS_GROUP`                                          | —                                                                 |
+| `xargs`    | Yes       | `-n`                                  | whitespace-split stdin tokens, batched exec                        | no `-0`/quoting-aware splitting                                   |
+| `less`     | Yes       | pages on a real console               | shares `more`'s implementation                                     | no backward scroll or `/search` yet (a `more`-equivalent subset)  |
+| `more`     | Yes       | pages on a real console               | "-- More --" prompt every 24 lines                                 | —                                                                 |
+| `column`   | Yes       | `-t -s`                               | field width scan                                                   | no true multi-column fill mode without `-t`                        |
+| `expr`     | Yes       | `+ - * / % = != < <= > >= :`          | small recursive evaluator                                          | no `&`/`|` boolean operators                                       |
+| `factor`   | Yes       | trial division                        | —                                                                    | slow for very large primes                                        |
+| `bc`       | Yes       | `+ - * / % ^ ()`                      | small recursive-descent parser over `float64`                       | not arbitrary precision like real bc; no variables/functions      |
+| `help`     | Yes       | lists commands / one summary line     | `command.Names()` + `Summary()`                                     | no per-flag usage detail (not tracked by the command registry)    |
+| `curl`     | Yes       | `-o -O -L -H -X -I`                   | `net/http`                                                          | no upload (`-T`/`-d`) flags yet                                   |
+| `wget`     | Yes       | `-O`                                  | `net/http`                                                          | no recursive/mirroring modes                                      |
+| `nc`       | Yes       | `-l -u -w`                            | `net.Dial`/`net.Listen`                                             | exits once either direction stops, not on explicit close          |
+| `host`     | Yes       | A/AAAA lookup                          | `net.LookupHost`                                                    | no MX/TXT/NS (use `dig` for those)                                 |
+| `nslookup` | Yes       | A/AAAA lookup                          | `net.LookupHost`                                                    | no interactive mode, no server selection                          |
+| `dig`      | Yes       | A/AAAA/MX/TXT/NS                       | `net` package resolver functions                                    | uses the system resolver, not a raw query to a chosen server      |
+| `traceroute` | Yes     | wraps `tracert.exe`                    | `os/exec`                                                            | output format matches `tracert`, not GNU traceroute                |
+| `netstat`  | Yes       | wraps `netstat.exe`                   | `os/exec`                                                            | flags are Windows netstat's own, not GNU netstat's                |
+| `arp`      | Yes       | wraps `arp.exe`                        | `os/exec`                                                            | —                                                                 |
+| `route`    | Yes       | `print` by default; passes others through | `os/exec`                                                        | verb-first syntax (`route add`), not flag-first like Linux route  |
+| `ss`       | Yes       | `-t -u -l -n`                          | filters `netstat -an` output client-side                            | not a real IP Helper socket table; text-filtered approximation    |
+| `hostnamectl` | Yes    | `status` only                          | `os.Hostname`                                                        | `set-hostname` needs a reboot + different API; not implemented    |
+| `journalctl` | Yes     | `-n`                                   | wraps `wevtutil.exe` (Application log)                                | —                                                                 |
+| `dmesg`    | Yes       | recent System log entries              | wraps `wevtutil.exe`                                                  | —                                                                 |
+| `systemctl` | Yes      | `status/start/stop/restart`            | wraps `sc.exe`                                                       | start/stop/restart need administrator rights, enforced by `sc.exe`|
+| `service`  | Yes       | `NAME status/start/stop/restart`       | reuses `systemctl`'s `sc.exe` wrapper                                 | —                                                                 |
+| `crontab`  | Yes       | `-l`                                   | wraps `schtasks.exe /query`                                          | no install-from-file; use `at` for one-time tasks                 |
+| `at`       | Yes       | `TIME COMMAND`                         | `schtasks.exe /create /sc once`                                       | —                                                                 |
+| `shutdown` | Yes       | `-r/-h TIME` ("now"/"+MIN"/seconds)    | wraps `shutdown.exe`                                                  | no absolute clock-time (`HH:MM`) argument, only relative delays   |
+| `reboot`   | Yes       | wraps `shutdown -r now`                | —                                                                     | —                                                                 |
+| `poweroff` | Yes       | wraps `shutdown -h now`                | —                                                                     | —                                                                 |
+| `chmod`    | Yes       | `-R`, octal and `+w/-w` modes         | `os.Chmod`                                                            | only tracks the read-only attribute; `+x/-x` accepted but no-op   |
+| `chown`    | Yes       | sets owner                             | wraps `icacls.exe /setowner`                                          | usually needs admin/SeTakeOwnershipPrivilege                       |
+| `chgrp`    | Yes       | grants group Modify access             | wraps `icacls.exe /grant`                                             | approximation only; Windows has no primary-group field             |
+| `install`  | Yes       | `-D -m`                                | `fsutil.CopyFile` + `os.MkdirAll` + chmod's mode logic                 | —                                                                 |
+| `mkfifo`   | Yes       | reports unsupported                    | —                                                                      | no on-disk FIFO object on Windows                                  |
+| `dd`       | Yes       | `if= of= bs= skip= seek= count=`       | block-by-block copy                                                    | `K`/`M`/`G` size suffixes only, no `conv=`                          |
+| `shred`    | Yes       | `-u -n`                                | random-data overwrite passes                                           | best-effort; SSD wear leveling can leave data recoverable          |
+| `bzip2`    | Yes       | `-d -k` (decompress only)              | `compress/bzip2`                                                       | compression unsupported (Go has no bzip2 writer)                   |
+| `xz`       | Yes       | reports unsupported                    | —                                                                      | no XZ codec in Go's standard library                                |
+| `sed`      | Yes       | one `s///[gi]` or `d`, `/addr/`/line#  | small hand-written script parser                                       | one command per script; no ranges, `a/i/c/y`, or `;`-chaining      |
+| `awk`      | Yes       | `-F`, `/pattern/`, `{print $N,...}`    | whitespace/`-F`-split fields                                            | no variables, arithmetic, user functions, or BEGIN/END              |
+| `openssl`  | Yes       | `rand -hex`, `dgst -sha256/-sha1/-md5` | Go `crypto/*`                                                          | small safe subset only, not a full OpenSSL CLI                     |
+| `git`      | Yes       | transparent wrapper                    | locates the real `git.exe` on `PATH` (skipping linuxcmd's own dir)     | requires Git for Windows to be separately installed                 |
 
 ## Development
 
