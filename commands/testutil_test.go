@@ -57,3 +57,16 @@ func mustWriteFile(t *testing.T, path, content string) {
 		t.Fatal(err)
 	}
 }
+
+// canonicalPath resolves path the way realpath (and filepath.EvalSymlinks)
+// does. On Windows this also expands 8.3 short names, which matters on CI
+// runners where TEMP is something like C:\Users\RUNNER~1\AppData\Local\Temp
+// and t.TempDir() therefore hands back the short form.
+func canonicalPath(t *testing.T, path string) string {
+	t.Helper()
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return path
+	}
+	return resolved
+}

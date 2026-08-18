@@ -3,299 +3,506 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Linux Commands on Windows | linuxcmd</title>
-<meta name="description" content="linuxcmd brings ls, grep, cat, and 17 more familiar Linux commands straight into normal Windows CMD — no WSL, no Bash, no virtual machine. Install once, open CMD, start typing.">
+<title>Linux commands on Windows CMD | linuxcmd</title>
+<meta name="description" content="linuxcmd puts 150 Linux commands (ls, grep, sed, awk, tar, curl and more) into the normal Windows Command Prompt. One Go binary, no WSL, no Cygwin, no virtual machine.">
 <meta name="theme-color" content="#0a0c10">
+<meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://khanalsaroj.github.io/linuxcmd/">
+
 <meta property="og:type" content="website">
-<meta property="og:title" content="linuxcmd — Linux commands, native on Windows">
-<meta property="og:description" content="Use familiar Linux commands directly from the normal Windows CMD terminal. No WSL. No Linux VM. No Bash environment.">
+<meta property="og:title" content="linuxcmd: Linux commands, native on Windows">
+<meta property="og:description" content="150 Linux commands running as real Windows executables inside the Command Prompt you already have open. No WSL, no Cygwin, no virtual machine.">
 <meta property="og:url" content="https://khanalsaroj.github.io/linuxcmd/">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="linuxcmd — Linux commands, native on Windows">
-<meta name="twitter:description" content="Use familiar Linux commands directly from the normal Windows CMD terminal. No WSL. No Linux VM. No Bash environment.">
+<meta property="og:image" content="https://opengraph.githubassets.com/1/khanalsaroj/linuxcmd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="linuxcmd: Linux commands, native on Windows">
+<meta name="twitter:description" content="150 Linux commands running as real Windows executables inside the Command Prompt you already have open.">
+<meta name="twitter:image" content="https://opengraph.githubassets.com/1/khanalsaroj/linuxcmd">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0c10'/%3E%3Ctext x='11' y='42' font-family='monospace' font-size='30' fill='%23ffb454'%3E%3E_%3C/text%3E%3C/svg%3E">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
-  /* ---------- Tokens ---------- */
+  /* ============================================================
+   * Tokens
+   * Theme: locked dark. A tool that lives in a black terminal
+   * does not get a light mode; `color-scheme: dark` is declared
+   * so form controls and scrollbars match.
+   * Radius system: 14px containers / 8px inner / 999px interactive.
+   * ========================================================== */
   :root{
     --bg:#0a0c10;
-    --bg-raised:#10131b;
-    --bg-terminal:#0c0f14;
-    --bg-card:#12151d;
-    --bg-card-hover:#161a24;
-    --border:#1e232e;
-    --border-strong:#2a3142;
+    --bg-raised:#0f1219;
+    --bg-terminal:#0b0e13;
+    --bg-card:#11141c;
+    --bg-card-hover:#151924;
+    --border:#1d222d;
+    --border-strong:#2a3141;
     --text:#e9ebf1;
-    --text-dim:#97a0b4;
-    --text-faint:#5c6478;
+    --text-dim:#98a1b5;
+    --text-faint:#5d6579;
     --accent:#ffb454;
     --accent-strong:#ffc879;
-    --accent-ink:#2b1b06;
-    --accent-glow:rgba(255,180,84,.28);
+    --accent-ink:#241503;
+    --accent-soft:rgba(255,180,84,.09);
+    --accent-line:rgba(255,180,84,.32);
+    --shadow-tint:rgba(4,6,12,.65);
     --dir:#7fd4e8;
     --ok:#7ee787;
-    --radius-sm:8px;
-    --radius-md:14px;
-    --radius-lg:22px;
-    --max-w:1160px;
-    --font-sans:'Manrope',system-ui,-apple-system,"Segoe UI",sans-serif;
-    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+    --r-lg:22px;
+    --r-md:14px;
+    --r-sm:8px;
+    --max-w:1180px;
+    --font-sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;
+    /* layer scale: content 0, sticky nav 20, mobile panel 30, grain 60 */
+    --z-nav:20;
+    --z-panel:30;
+    --z-grain:60;
   }
 
   *,*::before,*::after{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  @media (prefers-reduced-motion: reduce){
-    html{scroll-behavior:auto;}
-    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
-  }
+  html{scroll-behavior:smooth;scroll-padding-top:5.5rem;}
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:var(--font-sans);
-    line-height:1.6;
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:var(--font-sans);line-height:1.65;
     -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
   img,svg{max-width:100%;display:block;}
-  h1,h2,h3{font-family:var(--font-sans);text-wrap:balance;line-height:1.15;margin:0;}
-  p{margin:0;}
+  h1,h2,h3,h4{margin:0;line-height:1.14;text-wrap:balance;}
+  p{margin:0;text-wrap:pretty;}
   a{color:inherit;}
-  ul{margin:0;padding:0;list-style:none;}
-  code,pre,kbd{font-family:var(--font-mono);}
+  ul,ol{margin:0;padding:0;list-style:none;}
+  code,pre,kbd,samp{font-family:var(--font-mono);}
+  button,input{font:inherit;color:inherit;}
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
 
+  /* Grain: fixed + pointer-events:none so it never repaints on scroll. */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:var(--z-grain);pointer-events:none;
+    opacity:.028;mix-blend-mode:screen;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
   .skip-link{
-    position:absolute;left:1rem;top:-3rem;
+    position:absolute;left:1rem;top:-4rem;z-index:100;
     background:var(--accent);color:var(--accent-ink);
-    padding:.6rem 1rem;border-radius:var(--radius-sm);
-    font-weight:700;z-index:100;transition:top .15s ease;
+    padding:.65rem 1.1rem;border-radius:var(--r-sm);font-weight:700;
+    transition:top .15s ease;text-decoration:none;
   }
   .skip-link:focus{top:1rem;}
 
   .wrap{max-width:var(--max-w);margin-inline:auto;padding-inline:1.5rem;}
   section{padding-block:clamp(4rem,8vw,7rem);}
-  .eyebrow{
-    font-family:var(--font-mono);font-size:.8rem;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--accent);font-weight:600;
-  }
-  .section-head{max-width:640px;margin-bottom:clamp(2rem,4vw,3.5rem);}
-  .section-head h2{font-size:clamp(1.7rem,3.2vw,2.4rem);font-weight:800;margin-top:.6rem;}
-  .section-head p{color:var(--text-dim);margin-top:.9rem;font-size:1.05rem;}
+  .sec-head{max-width:56ch;margin-bottom:clamp(2rem,4vw,3.25rem);}
+  .sec-head h2{font-size:clamp(1.75rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;}
+  .sec-head p{color:var(--text-dim);margin-top:1rem;font-size:1.06rem;max-width:62ch;}
+  .rule{height:1px;background:var(--border);border:0;margin:0;}
+  .num{font-variant-numeric:tabular-nums;}
 
+  /* ---------- Buttons ---------- */
   .btn{
-    display:inline-flex;align-items:center;gap:.5rem;
-    font-family:var(--font-sans);font-weight:700;font-size:.95rem;
-    padding:.85rem 1.4rem;border-radius:999px;border:1px solid transparent;
-    text-decoration:none;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;
+    display:inline-flex;align-items:center;gap:.55rem;
+    font-weight:700;font-size:.95rem;line-height:1;white-space:nowrap;
+    padding:.9rem 1.45rem;border-radius:999px;border:1px solid transparent;
+    text-decoration:none;cursor:pointer;
+    transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s ease,background .18s ease,border-color .18s ease,color .18s ease;
   }
-  .btn:hover{transform:translateY(-1px);}
-  .btn-primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 0 0 0 var(--accent-glow);}
-  .btn-primary:hover{box-shadow:0 6px 30px -6px var(--accent-glow);background:var(--accent-strong);}
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0) scale(.985);}
+  .btn-primary{background:var(--accent);color:var(--accent-ink);}
+  .btn-primary:hover{background:var(--accent-strong);box-shadow:0 12px 30px -12px rgba(255,180,84,.55);}
   .btn-ghost{background:transparent;color:var(--text);border-color:var(--border-strong);}
-  .btn-ghost:hover{border-color:var(--accent);background:rgba(255,180,84,.06);}
+  .btn-ghost:hover{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent-strong);}
   .btn svg{width:1.05em;height:1.05em;flex:none;}
 
   /* ---------- Header ---------- */
   header{
-    position:sticky;top:0;z-index:50;
-    background:rgba(10,12,16,.72);backdrop-filter:blur(10px) saturate(140%);
-    border-bottom:1px solid transparent;transition:border-color .2s ease,background .2s ease;
+    position:sticky;top:0;z-index:var(--z-nav);
+    background:rgba(10,12,16,.7);backdrop-filter:blur(12px) saturate(150%);
+    border-bottom:1px solid transparent;
+    transition:border-color .25s ease,background .25s ease;
   }
-  header.scrolled{border-color:var(--border);background:rgba(10,12,16,.92);}
-  .nav{display:flex;align-items:center;justify-content:space-between;height:4.25rem;}
+  header.is-stuck{border-bottom-color:var(--border);background:rgba(10,12,16,.93);}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;height:4.25rem;}
   .logo{
-    font-family:var(--font-mono);font-weight:700;font-size:1.05rem;
-    display:flex;align-items:center;gap:.15rem;text-decoration:none;color:var(--text);
+    font-family:var(--font-mono);font-weight:700;font-size:1.02rem;
+    display:inline-flex;align-items:center;gap:.1rem;text-decoration:none;color:var(--text);flex:none;
   }
-  .logo .prompt{color:var(--accent);}
-  .nav-links{display:flex;align-items:center;gap:2rem;}
-  .nav-links a{font-size:.92rem;color:var(--text-dim);text-decoration:none;transition:color .15s ease;}
+  .logo .sig{color:var(--accent);}
+  .nav-links{display:flex;align-items:center;gap:1.6rem;}
+  .nav-links a{font-size:.9rem;color:var(--text-dim);text-decoration:none;transition:color .15s ease;position:relative;}
   .nav-links a:hover{color:var(--text);}
-  .nav-actions{display:flex;align-items:center;gap:.75rem;}
+  .nav-links a[aria-current="true"]{color:var(--accent);}
+  .nav-actions{display:flex;align-items:center;gap:.7rem;flex:none;}
   .icon-btn{
     display:inline-flex;align-items:center;justify-content:center;
-    width:2.4rem;height:2.4rem;border-radius:999px;border:1px solid var(--border-strong);
-    color:var(--text-dim);text-decoration:none;transition:color .15s ease,border-color .15s ease;
+    width:2.35rem;height:2.35rem;border-radius:999px;
+    border:1px solid var(--border-strong);color:var(--text-dim);text-decoration:none;
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
   }
-  .icon-btn:hover{color:var(--text);border-color:var(--accent);}
-  .nav-toggle{display:none;background:none;border:1px solid var(--border-strong);border-radius:var(--radius-sm);color:var(--text);width:2.4rem;height:2.4rem;align-items:center;justify-content:center;}
-  .mobile-panel{display:none;flex-direction:column;gap:.25rem;padding:0 1.5rem 1.25rem;border-bottom:1px solid var(--border);}
-  .mobile-panel a{padding:.7rem 0;color:var(--text-dim);text-decoration:none;border-top:1px solid var(--border);}
+  .icon-btn:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft);}
+  .nav-toggle{
+    display:none;background:none;border:1px solid var(--border-strong);
+    border-radius:var(--r-sm);width:2.35rem;height:2.35rem;
+    align-items:center;justify-content:center;cursor:pointer;
+  }
+  .mobile-panel{display:none;flex-direction:column;padding:0 1.5rem 1.25rem;z-index:var(--z-panel);}
+  .mobile-panel a{padding:.8rem 0;color:var(--text-dim);text-decoration:none;border-top:1px solid var(--border);}
+  .mobile-panel a:hover{color:var(--accent);}
   .mobile-panel.open{display:flex;}
-
-  @media (max-width:860px){
+  @media (max-width:900px){
     .nav-links,.nav-actions .btn{display:none;}
     .nav-toggle{display:inline-flex;}
   }
 
   /* ---------- Hero ---------- */
-  #hero{padding-top:clamp(3.5rem,8vw,5.5rem);}
-  .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(2rem,5vw,4rem);align-items:center;}
+  #hero{
+    padding-top:clamp(3rem,6vw,5rem);padding-bottom:clamp(3rem,6vw,4.5rem);
+    position:relative;
+  }
+  #hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+    background:radial-gradient(70% 55% at 18% 0%,rgba(255,180,84,.10),transparent 62%);
+  }
+  .hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(2rem,4.5vw,3.5rem);align-items:center;}
   @media (max-width:980px){.hero-grid{grid-template-columns:1fr;}}
   .badge{
     display:inline-flex;align-items:center;gap:.5rem;
-    font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;font-weight:600;
-    color:var(--accent);border:1px solid rgba(255,180,84,.35);background:rgba(255,180,84,.08);
-    padding:.4rem .8rem;border-radius:999px;
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.1em;font-weight:500;
+    color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);
+    padding:.42rem .85rem;border-radius:999px;
   }
-  .badge::before{content:"";width:.4rem;height:.4rem;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
-  h1.headline{font-size:clamp(2.4rem,5.4vw,3.9rem);font-weight:800;letter-spacing:-.02em;margin-top:1.1rem;}
-  h1.headline .accent-line{color:var(--accent);}
-  .hero-desc{margin-top:1.4rem;font-size:1.12rem;color:var(--text-dim);max-width:46ch;}
-  .hero-desc code{background:var(--bg-card);border:1px solid var(--border);padding:.1em .4em;border-radius:5px;font-size:.9em;color:var(--text);}
-  .hero-ctas{display:flex;flex-wrap:wrap;gap:.9rem;margin-top:2rem;}
-  .hero-meta{margin-top:1.6rem;font-family:var(--font-mono);font-size:.82rem;color:var(--text-faint);display:flex;gap:1.4rem;flex-wrap:wrap;}
-  .hero-meta strong{color:var(--text-dim);font-weight:600;}
+  /* Scale is capped so the second line ("Native on Windows.") never wraps:
+     a 3-line hero headline is a font-size error, not a copy-length one. */
+  h1.headline{font-size:clamp(2.05rem,4.4vw,3.3rem);font-weight:800;letter-spacing:-.028em;margin-top:1.15rem;}
+  h1.headline .hl{color:var(--accent);}
+  .hero-desc{margin-top:1.35rem;font-size:1.14rem;color:var(--text-dim);max-width:44ch;}
+  .hero-desc code{
+    background:var(--bg-card);border:1px solid var(--border);
+    padding:.08em .38em;border-radius:5px;font-size:.88em;color:var(--text);
+  }
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:.85rem;margin-top:2.1rem;}
 
-  /* ---------- Terminal component ---------- */
+  /* ---------- Stat band ---------- */
+  .statband{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-block:1px solid var(--border);
+  }
+  .statband div{padding:1.6rem 1.4rem;border-left:1px solid var(--border);}
+  .statband div:first-child{border-left:0;padding-left:0;}
+  .statband dt{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--text-faint);margin-top:.45rem;
+  }
+  .statband dd{
+    margin:0;font-size:clamp(1.6rem,3vw,2.15rem);font-weight:800;letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums;color:var(--text);
+  }
+  .statband dd .unit{font-size:.5em;color:var(--text-faint);font-weight:600;margin-left:.15em;}
+  @media (max-width:760px){
+    .statband{grid-template-columns:repeat(2,1fr);}
+    .statband div{padding:1.25rem 1rem;border-top:1px solid var(--border);}
+    .statband div:nth-child(odd){border-left:0;padding-left:0;}
+    .statband div:nth-child(-n+2){border-top:0;}
+  }
+
+  /* ---------- What it is / is not ---------- */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .duo > div{padding:0 2.5rem;}
+  .duo > div:first-child{padding-left:0;border-right:1px solid var(--border);}
+  .duo > div:last-child{padding-right:0;}
+  .duo h3{
+    font-family:var(--font-mono);font-size:.78rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--text-faint);font-weight:500;margin-bottom:1.4rem;
+  }
+  .duo li{
+    display:flex;gap:.85rem;padding:.85rem 0;border-top:1px solid var(--border);
+    color:var(--text-dim);font-size:.97rem;
+  }
+  .duo li:first-of-type{border-top:0;padding-top:0;}
+  .duo .mark{font-family:var(--font-mono);flex:none;font-size:.95rem;line-height:1.6;}
+  .duo .yes .mark{color:var(--accent);}
+  .duo .no .mark{color:var(--text-faint);}
+  .duo .yes{color:var(--text);}
+  .duo code{color:var(--accent-strong);font-size:.88em;}
+  @media (max-width:820px){
+    .duo{grid-template-columns:1fr;gap:2.5rem;}
+    .duo > div{padding:0;}
+    .duo > div:first-child{border-right:0;border-bottom:1px solid var(--border);padding-bottom:2.5rem;}
+  }
+
+  /* ---------- Command explorer ---------- */
+  .explorer-bar{
+    display:flex;flex-wrap:wrap;gap:1.25rem 2rem;align-items:flex-end;
+    margin-bottom:1.5rem;
+  }
+  .field{display:flex;flex-direction:column;gap:.5rem;flex:1 1 260px;max-width:340px;}
+  .field label{font-size:.8rem;color:var(--text-dim);font-weight:600;}
+  .search-shell{
+    display:flex;align-items:center;gap:.6rem;
+    background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--r-sm);
+    padding:.6rem .85rem;transition:border-color .15s ease,background .15s ease;
+  }
+  .search-shell:focus-within{border-color:var(--accent);background:var(--bg-card-hover);}
+  .search-shell svg{width:1rem;height:1rem;color:var(--text-faint);flex:none;}
+  .search-shell input{
+    border:0;background:none;outline:none;width:100%;
+    font-family:var(--font-mono);font-size:.88rem;color:var(--text);
+  }
+  /* Placeholder is a hint, never the label. Contrast checked against --bg-card. */
+  .search-shell input::placeholder{color:var(--text-faint);opacity:1;}
+  .chips{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .chip{
+    font-family:var(--font-mono);font-size:.78rem;
+    padding:.45rem .85rem;border-radius:999px;cursor:pointer;
+    border:1px solid var(--border-strong);background:transparent;color:var(--text-dim);
+    transition:color .15s ease,border-color .15s ease,background .15s ease,transform .15s ease;
+  }
+  .chip:hover{color:var(--text);border-color:var(--accent-line);}
+  .chip:active{transform:scale(.97);}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700;}
+  .chip .n{opacity:.6;margin-left:.35rem;font-variant-numeric:tabular-nums;}
+  .chip[aria-pressed="true"] .n{opacity:.7;}
+  .result-count{font-family:var(--font-mono);font-size:.8rem;color:var(--text-faint);margin-bottom:1rem;font-variant-numeric:tabular-nums;}
+  .cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:.6rem;}
+  .cmd-tile{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-sm);
+    padding:.85rem .95rem;
+    transition:border-color .15s ease,background .15s ease,transform .15s ease;
+  }
+  .cmd-tile:hover{border-color:var(--accent-line);background:var(--bg-card-hover);transform:translateY(-2px);}
+  .cmd-tile b{
+    font-family:var(--font-mono);font-size:.92rem;font-weight:700;color:var(--accent);
+    display:block;
+  }
+  .cmd-tile span{display:block;font-size:.82rem;color:var(--text-dim);margin-top:.3rem;line-height:1.5;}
+  .cmd-tile mark{background:rgba(255,180,84,.22);color:var(--accent-strong);border-radius:3px;padding:0 .1em;}
+  .empty-state{
+    border:1px dashed var(--border-strong);border-radius:var(--r-md);
+    padding:3rem 1.5rem;text-align:center;color:var(--text-dim);
+  }
+  .empty-state p{font-size:.95rem;}
+  .empty-state strong{color:var(--text);font-family:var(--font-mono);}
+  .empty-state button{
+    margin-top:1.1rem;background:none;border:1px solid var(--border-strong);
+    color:var(--text);border-radius:999px;padding:.5rem 1.1rem;cursor:pointer;font-size:.85rem;
+    transition:border-color .15s ease,color .15s ease;
+  }
+  .empty-state button:hover{border-color:var(--accent);color:var(--accent);}
+  [hidden]{display:none !important;}
+
+  /* ---------- How it works ---------- */
+  .how-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:clamp(2rem,4vw,3.5rem);align-items:start;}
+  @media (max-width:900px){.how-grid{grid-template-columns:1fr;}}
+  .codeblock{
+    background:var(--bg-terminal);border:1px solid var(--border-strong);border-radius:var(--r-md);
+    padding:1.35rem 1.4rem;overflow-x:auto;
+    font-family:var(--font-mono);font-size:.83rem;line-height:1.95;
+    box-shadow:0 26px 60px -34px var(--shadow-tint);
+  }
+  .codeblock .l{white-space:pre;color:var(--text-dim);}
+  .codeblock .k{color:var(--accent);}
+  .codeblock .d{color:var(--dir);}
+  .codeblock .c{color:var(--text-faint);}
+  .why{display:flex;flex-direction:column;}
+  .why li{padding:1.15rem 0;border-top:1px solid var(--border);}
+  .why li:first-child{border-top:0;padding-top:0;}
+  .why h3{font-size:1rem;font-weight:700;}
+  .why p{margin-top:.4rem;font-size:.9rem;color:var(--text-dim);}
+  .why code{color:var(--accent-strong);font-size:.88em;}
+
+  /* ---------- Path map ---------- */
+  .pathmap{display:grid;grid-template-columns:repeat(2,1fr);gap:0 2.5rem;}
+  @media (max-width:820px){.pathmap{grid-template-columns:1fr;}}
+  .pathmap li{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:.85rem;align-items:baseline;
+    padding:.8rem 0;border-top:1px solid var(--border);
+    font-family:var(--font-mono);font-size:.83rem;
+  }
+  .pathmap li .from{color:var(--accent);}
+  .pathmap li .arrow{color:var(--text-faint);}
+  .pathmap li .to{color:var(--text-dim);text-align:right;}
+  .footnote{margin-top:2rem;color:var(--text-faint);font-size:.9rem;max-width:72ch;}
+  .footnote code{color:var(--text-dim);}
+
+  /* ---------- Terminal ---------- */
   .terminal{
-    background:var(--bg-terminal);border:1px solid var(--border-strong);border-radius:var(--radius-lg);
-    overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.02) inset;
+    background:var(--bg-terminal);border:1px solid var(--border-strong);border-radius:var(--r-md);
+    overflow:hidden;box-shadow:0 34px 80px -40px var(--shadow-tint);
   }
   .terminal-bar{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:.55rem .9rem;background:var(--bg-raised);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:.5rem;
+    padding:.6rem .95rem;background:var(--bg-raised);border-bottom:1px solid var(--border);
+    font-family:var(--font-mono);font-size:.76rem;color:var(--text-faint);
   }
-  .terminal-bar .title{display:flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.78rem;color:var(--text-faint);}
-  .terminal-bar .title svg{width:14px;height:14px;color:var(--accent);}
-  .terminal-controls{display:flex;gap:.4rem;}
-  .terminal-controls span{
-    width:1rem;height:1rem;display:inline-flex;align-items:center;justify-content:center;
-    border:1px solid var(--border-strong);border-radius:3px;color:var(--text-faint);font-size:.55rem;
-  }
+  .terminal-bar svg{width:13px;height:13px;color:var(--accent);flex:none;}
   .terminal-body{
-    padding:1.25rem 1.35rem 1.5rem;font-family:var(--font-mono);font-size:.86rem;
-    min-height:19rem;line-height:1.75;
+    padding:1.15rem 1.1rem 1.4rem;font-family:var(--font-mono);
+    font-size:.845rem;line-height:1.8;min-height:20rem;overflow-x:auto;
+    scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;
   }
-  .terminal-body .line{white-space:pre-wrap;word-break:break-word;}
+  .terminal-body::-webkit-scrollbar{height:6px;}
+  .terminal-body::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+  .terminal-body::-webkit-scrollbar-track{background:transparent;}
+  /* The hero terminal sits in the narrower column, so its transcript is
+     set a step smaller to keep real `ls -l` rows on one line. */
+  #heroTerminalBody{font-size:.78rem;}
+  .terminal-body .line{white-space:pre;}
   .terminal-body .prompt{color:var(--dir);}
   .terminal-body .cmd{color:var(--accent);}
   .terminal-body .out{color:var(--text-dim);}
   .terminal-body .tok-dir{color:var(--dir);}
-  .terminal-body .tok-file{color:var(--text-dim);}
   .terminal-body .tok-ok{color:var(--ok);}
-  .caret{display:inline-block;width:.55em;height:1.05em;background:var(--accent);vertical-align:-.15em;animation:blink 1s step-end infinite;}
+  .terminal-body .tok-faint{color:var(--text-faint);}
+  .caret{display:inline-block;width:.55em;height:1.02em;background:var(--accent);vertical-align:-.14em;animation:blink 1.05s step-end infinite;}
   @keyframes blink{50%{opacity:0;}}
-  .copy-btn{
-    font-family:var(--font-mono);font-size:.72rem;color:var(--text-faint);background:none;
-    border:1px solid var(--border-strong);border-radius:6px;padding:.3rem .55rem;cursor:pointer;
-    transition:color .15s ease,border-color .15s ease;
-  }
-  .copy-btn:hover{color:var(--accent);border-color:var(--accent);}
 
-  /* ---------- Problem / Solution ---------- */
-  .split{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
-  @media (max-width:820px){.split{grid-template-columns:1fr;}}
-  .panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.9rem;}
-  .panel h3{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:.55rem;}
-  .panel.old h3{color:var(--text-dim);}
-  .panel.new{border-color:rgba(255,180,84,.35);background:linear-gradient(180deg,rgba(255,180,84,.05),transparent 60%),var(--bg-card);}
-  .panel.new h3{color:var(--accent);}
-  .panel ul{margin-top:1.1rem;display:flex;flex-direction:column;gap:.7rem;}
-  .panel li{display:flex;gap:.6rem;color:var(--text-dim);font-size:.95rem;}
-  .panel li svg{flex:none;width:1.1rem;height:1.1rem;margin-top:.15rem;}
-  .panel.old li svg{color:var(--text-faint);}
-  .panel.new li svg{color:var(--accent);}
-  .panel.new li{color:var(--text);}
-
-  /* ---------- How it works ---------- */
-  .flow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:.5rem;margin:0 -1.5rem;padding-inline:1.5rem;}
-  .flow-step{
-    flex:0 0 200px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:1.3rem 1.15rem;position:relative;
-  }
-  .flow-step .num{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);letter-spacing:.08em;}
-  .flow-step h3{font-size:.98rem;font-weight:700;margin-top:.6rem;}
-  .flow-step p{font-size:.84rem;color:var(--text-dim);margin-top:.5rem;}
-  .flow-arrow{flex:0 0 2.5rem;display:flex;align-items:center;justify-content:center;color:var(--text-faint);}
-  @media (max-width:700px){
-    .flow{flex-direction:column;}
-    .flow-step{flex:none;}
-    .flow-arrow{flex:none;width:2.5rem;height:2rem;transform:rotate(90deg);margin-inline:auto;}
-  }
-
-  /* ---------- Table ---------- */
-  .table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-md);}
-  table{width:100%;border-collapse:collapse;min-width:560px;font-size:.92rem;}
-  caption{text-align:left;padding:1rem 1.25rem;font-family:var(--font-mono);font-size:.78rem;color:var(--text-faint);border-bottom:1px solid var(--border);}
-  th,td{text-align:left;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);}
-  thead th{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);background:var(--bg-raised);}
-  tbody tr:last-child td{border-bottom:none;}
-  tbody tr:hover{background:var(--bg-card-hover);}
-  td code, td .cmdname{font-family:var(--font-mono);color:var(--accent);font-weight:600;}
-  td.desc-cell{color:var(--text-dim);}
-
-  .compare-table td, .compare-table th{text-align:center;}
-  .compare-table td:first-child, .compare-table th:first-child{text-align:left;}
-  .compare-table .yes{color:var(--ok);font-weight:700;}
-  .compare-table th.hl, .compare-table td.hl{background:rgba(255,180,84,.06);}
-
-  /* ---------- Installation ---------- */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
-  @media (max-width:820px){.steps{grid-template-columns:1fr;}}
-  .step{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.6rem;}
-  .step .num{
-    width:2.1rem;height:2.1rem;border-radius:50%;background:rgba(255,180,84,.12);color:var(--accent);
-    display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:.9rem;
-  }
-  .step h3{margin-top:.9rem;font-size:1.05rem;font-weight:700;}
-  .step p{margin-top:.5rem;color:var(--text-dim);font-size:.92rem;}
-  .install-cmd{
-    margin-top:2rem;background:var(--bg-terminal);border:1px solid var(--border-strong);border-radius:var(--radius-md);
-    display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.25rem;
-    font-family:var(--font-mono);font-size:.85rem;overflow-x:auto;
-  }
-  .install-cmd .cmdtext{color:var(--text);white-space:nowrap;}
-  .install-cmd .cmdtext .fn{color:var(--accent);}
-  .note{
-    margin-top:1.25rem;font-size:.86rem;color:var(--text-faint);display:flex;gap:.55rem;align-items:flex-start;
-  }
-  .note svg{flex:none;width:1.05rem;height:1.05rem;margin-top:.15rem;color:var(--accent);}
-
-  /* ---------- Examples tabs ---------- */
-  .tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  /* ---------- Tabs (shared: install + examples) ---------- */
+  .tabs{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.25rem;}
   .tab{
-    font-family:var(--font-mono);font-size:.82rem;padding:.55rem 1rem;border-radius:999px;
+    font-family:var(--font-mono);font-size:.8rem;padding:.5rem 1rem;border-radius:999px;
     border:1px solid var(--border-strong);background:transparent;color:var(--text-dim);cursor:pointer;
+    transition:color .15s ease,border-color .15s ease,background .15s ease,transform .15s ease;
   }
+  .tab:hover{color:var(--text);border-color:var(--accent-line);}
+  .tab:active{transform:scale(.97);}
   .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700;}
 
-  /* ---------- Features ---------- */
-  .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
-  @media (max-width:900px){.feature-grid{grid-template-columns:repeat(2,1fr);}}
-  @media (max-width:600px){.feature-grid{grid-template-columns:1fr;}}
-  .feature{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.5rem;transition:border-color .15s ease,transform .15s ease;}
-  .feature:hover{border-color:var(--border-strong);transform:translateY(-2px);}
-  .feature svg{width:1.4rem;height:1.4rem;color:var(--accent);}
-  .feature h3{margin-top:.9rem;font-size:1rem;font-weight:700;}
-  .feature p{margin-top:.45rem;font-size:.88rem;color:var(--text-dim);}
-
-  /* ---------- Open source ---------- */
-  .oss{
-    text-align:center;background:radial-gradient(60% 120% at 50% 0%,rgba(255,180,84,.09),transparent 70%),var(--bg-card);
-    border:1px solid var(--border);border-radius:var(--radius-lg);padding:clamp(2.5rem,6vw,4.5rem) clamp(1.5rem,5vw,3rem);
+  /* ---------- Install ---------- */
+  .install-cmd{
+    background:var(--bg-terminal);border:1px solid var(--border-strong);border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    padding:1rem 1.1rem;font-family:var(--font-mono);font-size:.85rem;
   }
-  .oss h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;}
-  .oss p{margin-top:.9rem;color:var(--text-dim);max-width:46ch;margin-inline:auto;font-size:1.05rem;}
-  .oss .hero-ctas{justify-content:center;margin-top:1.8rem;}
+  .install-cmd .cmdtext{color:var(--text);overflow-x:auto;white-space:pre;}
+  .install-cmd .cmdtext .op{color:var(--accent);}
+  .install-cmd .cmdtext .c{color:var(--text-faint);}
+  .copy-btn{
+    font-family:var(--font-mono);font-size:.74rem;color:var(--text-dim);background:none;
+    border:1px solid var(--border-strong);border-radius:999px;padding:.4rem .8rem;cursor:pointer;flex:none;
+    transition:color .15s ease,border-color .15s ease,transform .15s ease;
+  }
+  .copy-btn:hover{color:var(--accent);border-color:var(--accent);}
+  .copy-btn:active{transform:scale(.96);}
+  .copy-btn.done{color:var(--ok);border-color:var(--ok);}
+  .install-note{
+    margin-top:1.1rem;font-size:.88rem;color:var(--text-faint);
+    display:flex;gap:.6rem;align-items:flex-start;max-width:74ch;
+  }
+  .install-note svg{flex:none;width:1.05rem;height:1.05rem;margin-top:.22rem;color:var(--accent);}
+  .install-note code{color:var(--text-dim);}
+  .envtable{margin-top:1.6rem;}
+  .envtable li{
+    display:grid;grid-template-columns:minmax(0,15rem) 1fr;gap:1rem;
+    padding:.7rem 0;border-top:1px solid var(--border);font-size:.88rem;
+  }
+  .envtable li:first-child{border-top:0;}
+  .envtable code{font-size:.85rem;color:var(--accent);word-break:break-all;}
+  .envtable span{color:var(--text-dim);}
+  @media (max-width:640px){.envtable li{grid-template-columns:1fr;gap:.25rem;}}
+
+  /* ---------- Honest limits (disclosure) ---------- */
+  .limits{border-top:1px solid var(--border);}
+  .limits details{border-bottom:1px solid var(--border);}
+  .limits summary{
+    list-style:none;cursor:pointer;padding:1.15rem 0;
+    display:flex;align-items:center;gap:1rem;font-weight:600;font-size:1rem;
+    transition:color .15s ease;
+  }
+  .limits summary::-webkit-details-marker{display:none;}
+  .limits summary:hover{color:var(--accent);}
+  .limits summary .sign{
+    flex:none;width:1.1rem;height:1.1rem;position:relative;color:var(--accent);
+  }
+  .limits summary .sign::before,.limits summary .sign::after{
+    content:"";position:absolute;background:currentColor;border-radius:1px;
+    top:50%;left:50%;translate:-50% -50%;
+  }
+  .limits summary .sign::before{width:100%;height:1.5px;}
+  .limits summary .sign::after{width:1.5px;height:100%;transition:opacity .2s ease,rotate .2s ease;}
+  .limits details[open] summary .sign::after{opacity:0;rotate:90deg;}
+  .limits .body{padding:0 0 1.5rem 2.1rem;color:var(--text-dim);font-size:.94rem;max-width:78ch;}
+  .limits .body p + p{margin-top:.9rem;}
+  .limits .body code{color:var(--accent-strong);font-size:.88em;}
+  .limits .body pre{
+    margin:1rem 0 0;padding:.9rem 1rem;background:var(--bg-terminal);
+    border:1px solid var(--border);border-radius:var(--r-sm);
+    font-size:.78rem;overflow-x:auto;color:var(--text-dim);
+  }
+
+  /* ---------- Comparison ---------- */
+  .table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-md);}
+  table{width:100%;border-collapse:collapse;min-width:620px;font-size:.92rem;}
+  caption{
+    text-align:left;padding:1rem 1.25rem;font-family:var(--font-mono);
+    font-size:.76rem;color:var(--text-faint);border-bottom:1px solid var(--border);
+  }
+  th,td{text-align:left;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);}
+  thead th{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--text-faint);font-weight:500;background:var(--bg-raised);
+  }
+  tbody tr:last-child td,tbody tr:last-child th{border-bottom:0;}
+  tbody th{font-weight:500;color:var(--text-dim);}
+  .cmp td{text-align:center;font-family:var(--font-mono);font-size:.85rem;color:var(--text-faint);}
+  .cmp thead th.hl{color:var(--accent);}
+  .cmp th.hl,.cmp td.hl{background:var(--accent-soft);}
+  .cmp .yes{color:var(--ok);}
+  .cmp tbody th{text-align:left;}
+
+  /* ---------- Closing CTA ---------- */
+  .closing{
+    border:1px solid var(--border);border-radius:var(--r-lg);
+    background:radial-gradient(75% 130% at 12% 0%,rgba(255,180,84,.10),transparent 62%),var(--bg-card);
+    padding:clamp(2.5rem,6vw,4.25rem) clamp(1.5rem,5vw,3.5rem);
+  }
+  .closing h2{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:800;letter-spacing:-.02em;max-width:20ch;}
+  .closing p{margin-top:1rem;color:var(--text-dim);max-width:56ch;font-size:1.04rem;}
+  .closing .hero-ctas{margin-top:1.9rem;}
 
   /* ---------- Footer ---------- */
-  footer{border-top:1px solid var(--border);padding-block:3rem;}
-  .footer-grid{display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap;}
-  .footer-brand .logo{margin-bottom:.6rem;}
-  .footer-brand p{color:var(--text-faint);font-size:.88rem;max-width:32ch;}
-  .footer-links{display:flex;gap:2.5rem;flex-wrap:wrap;}
-  .footer-links h4{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.8rem;}
-  .footer-links ul{display:flex;flex-direction:column;gap:.55rem;}
-  .footer-links a{color:var(--text-dim);text-decoration:none;font-size:.9rem;}
+  footer{border-top:1px solid var(--border);padding-block:3rem 2.5rem;}
+  .footer-grid{display:flex;justify-content:space-between;gap:2.5rem;flex-wrap:wrap;}
+  .footer-brand p{color:var(--text-faint);font-size:.88rem;max-width:34ch;margin-top:.7rem;}
+  .footer-links{display:flex;gap:3.5rem;flex-wrap:wrap;}
+  .footer-links h3{
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--text-faint);font-weight:500;margin-bottom:.9rem;
+  }
+  .footer-links ul{display:flex;flex-direction:column;gap:.6rem;}
+  .footer-links a{color:var(--text-dim);text-decoration:none;font-size:.9rem;transition:color .15s ease;}
   .footer-links a:hover{color:var(--accent);}
   .footer-bottom{
-    margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);
+    margin-top:2.75rem;padding-top:1.5rem;border-top:1px solid var(--border);
     display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
     font-size:.82rem;color:var(--text-faint);
+  }
+
+  /* ---------- Scroll reveal ----------
+   * Motion here is for hierarchy only: sections settle into place in
+   * reading order so the eye lands on the headline before the detail.
+   */
+  .reveal{opacity:0;transform:translateY(18px);}
+  .reveal.in{
+    opacity:1;transform:none;
+    transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1);
+    transition-delay:calc(var(--i,0) * 70ms);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{
+      animation-duration:.01ms !important;animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;transition-delay:0ms !important;
+    }
+    .reveal{opacity:1;transform:none;}
+    .btn:hover,.cmd-tile:hover{transform:none;}
+    .caret{animation:none;}
   }
 </style>
 </head>
@@ -304,21 +511,22 @@
 
 <header id="site-header">
   <div class="wrap nav">
-    <a class="logo" href="#hero"><span class="prompt">&gt;</span>linuxcmd</a>
+    <a class="logo" href="#hero"><span class="sig">&gt;</span>linuxcmd</a>
     <nav class="nav-links" aria-label="Primary">
       <a href="#commands">Commands</a>
       <a href="#how-it-works">How it works</a>
       <a href="#installation">Install</a>
       <a href="#examples">Examples</a>
+      <a href="#limits">Limits</a>
     </nav>
     <div class="nav-actions">
-      <a class="icon-btn" data-cfg="githubUrl" href="#" aria-label="View source on GitHub">
-        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <a class="icon-btn" data-cfg="githubUrl" href="#" aria-label="View linuxcmd source on GitHub">
+        <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
       </a>
       <a class="btn btn-primary" data-cfg="downloadUrl" href="#">Download</a>
     </div>
-    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mobilePanel" aria-label="Toggle menu">
-      <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mobilePanel" aria-label="Open navigation menu">
+      <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14"/></svg>
     </button>
   </div>
   <div class="mobile-panel" id="mobilePanel">
@@ -326,6 +534,7 @@
     <a href="#how-it-works">How it works</a>
     <a href="#installation">Install</a>
     <a href="#examples">Examples</a>
+    <a href="#limits">Limits</a>
     <a data-cfg="githubUrl" href="#">GitHub</a>
     <a data-cfg="downloadUrl" href="#">Download</a>
   </div>
@@ -333,236 +542,374 @@
 
 <main id="main">
 
-  <!-- ===================== HERO ===================== -->
+  <!-- ============ HERO: asymmetric split ============ -->
   <section id="hero">
     <div class="wrap hero-grid">
       <div>
-        <span class="badge">OPEN SOURCE &bull; WINDOWS &bull; GO</span>
-        <h1 class="headline">Linux commands.<br><span class="accent-line">Native on Windows.</span></h1>
+        <span class="badge">MIT licensed &middot; written in Go</span>
+        <h1 class="headline">Linux commands.<br><span class="hl">Native on Windows.</span></h1>
         <p class="hero-desc">
-          Use familiar Linux commands directly from the normal Windows <code>CMD</code> terminal.
-          No WSL. No Linux VM. No Bash environment. Just install and start typing.
+          Install once, open the <code>cmd.exe</code> you already have, and type
+          <code>ls</code>, <code>grep</code>, or <code>sed</code>.
         </p>
         <div class="hero-ctas">
           <a class="btn btn-primary" data-cfg="downloadUrl" href="#">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 1v9m0 0 3.5-3.5M8 10 4.5 6.5M2 12.5v1a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1"/></svg>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5v8.5m0 0 3.4-3.4M8 10 4.6 6.6M2 12v1.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>
             Download
           </a>
           <a class="btn btn-ghost" data-cfg="githubUrl" href="#">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
             View on GitHub
           </a>
         </div>
-        <div class="hero-meta">
-          <span><strong>20</strong> commands</span>
-          <span><strong>1</strong> static binary</span>
-          <span><strong>0</strong> Linux distros installed</span>
-        </div>
       </div>
 
-      <div class="terminal" id="heroTerminal" aria-label="Example Windows CMD session running Linux-style commands">
+      <div class="terminal" id="heroTerminal">
         <div class="terminal-bar">
-          <div class="title">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 3h12v10H2z"/><path d="M4 6l2 2-2 2M8 10h4"/></svg>
-            Command Prompt
-          </div>
-          <div class="terminal-controls" aria-hidden="true">
-            <span>&minus;</span><span>&#9633;</span><span>&times;</span>
-          </div>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4.5 6.5 6.5 8.5l-2 2M8.5 10.5h3.5"/></svg>
+          Command Prompt
         </div>
-        <div class="terminal-body" id="heroTerminalBody"></div>
+        <div class="terminal-body" id="heroTerminalBody" aria-label="A Windows Command Prompt session running ls, grep and wc through linuxcmd"></div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== PROBLEM / SOLUTION ===================== -->
-  <section id="problem">
+  <!-- ============ STAT BAND ============ -->
+  <div class="wrap">
+    <dl class="statband reveal">
+      <div><dd class="num">150</dd><dt>Commands</dt></div>
+      <div><dd class="num">1</dd><dt>Compiled binary</dt></div>
+      <div><dd class="num">3.7<span class="unit">MB</span></dd><dt>Total on disk</dt></div>
+      <div><dd class="num">0</dd><dt>Distros to maintain</dt></div>
+    </dl>
+  </div>
+
+  <!-- ============ WHAT IT IS / IS NOT: two-column divide ============ -->
+  <section id="about">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">The problem</span>
-        <h2>Want Linux commands on Windows? It usually costs you an environment.</h2>
-        <p>The typical options work, but they all ask you to step outside the terminal you already have open.</p>
+      <div class="sec-head reveal">
+        <h2>A compatibility layer, not a Linux environment.</h2>
+        <p>
+          Command behavior is implemented natively in Go on top of the Windows filesystem
+          and Win32 APIs, rather than emulating or virtualizing Linux underneath it.
+        </p>
       </div>
-      <div class="split">
-        <div class="panel old">
-          <h3>
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2.3 2.3"/></svg>
-            The usual way
-          </h3>
+      <div class="duo reveal">
+        <div>
+          <h3>What runs</h3>
           <ul>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h8"/></svg> Install WSL and a full Linux distribution</li>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h8"/></svg> Or set up Git Bash, Cygwin, or MSYS2</li>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h8"/></svg> Maintain a second filesystem, shell, and package set</li>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h8"/></svg> Leave normal <code>cmd.exe</code> behind entirely</li>
+            <li class="yes"><span class="mark">+</span><span>Real Windows executables backed by the Go standard library and Windows syscalls</span></li>
+            <li class="yes"><span class="mark">+</span><span>The <code>cmd.exe</code> window you already have open, with its own pipes and redirection</span></li>
+            <li class="yes"><span class="mark">+</span><span>Linux-style flags, exit codes, and error text such as <code>No such file or directory</code></span></li>
+            <li class="yes"><span class="mark">+</span><span>Paths written the Linux way, resolved to real Windows paths</span></li>
           </ul>
         </div>
-        <div class="panel new">
-          <h3>
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4"/></svg>
-            The linuxcmd way
-          </h3>
+        <div>
+          <h3>What does not</h3>
           <ul>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4"/></svg> Install one small Go binary</li>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4"/></svg> Open the normal Windows CMD you already use</li>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4"/></svg> Type <code>ls</code>, <code>grep</code>, <code>cat</code> — they just work</li>
-            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4"/></svg> No other environment running underneath</li>
+            <li class="no"><span class="mark">&minus;</span><span>No WSL, and nothing to enable at the OS level</span></li>
+            <li class="no"><span class="mark">&minus;</span><span>No Cygwin, MSYS2, or Git Bash runtime</span></li>
+            <li class="no"><span class="mark">&minus;</span><span>No virtual machine and no second filesystem to keep in sync</span></li>
+            <li class="no"><span class="mark">&minus;</span><span>No shelling out to <code>cmd.exe /c</code> behind your back</span></li>
           </ul>
         </div>
       </div>
-      <p style="margin-top:1.75rem;color:var(--text-faint);font-size:.92rem;max-width:70ch;">
-        linuxcmd is a compatibility layer, not a Linux environment: it implements Linux-style command
-        behavior natively in Go on top of the Windows filesystem and Win32 APIs, rather than emulating
-        or virtualizing Linux itself.
-      </p>
     </div>
   </section>
 
-  <!-- ===================== HOW IT WORKS ===================== -->
-  <section id="how-it-works">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">How it works</span>
-        <h2>One command, five steps, no virtual machine.</h2>
-        <p>Every command you type is parsed, translated, and executed natively — the request never leaves your Windows session.</p>
-      </div>
-    </div>
-    <div class="wrap">
-      <div class="flow" id="flowDiagram"></div>
-    </div>
-  </section>
-
-  <!-- ===================== COMMANDS ===================== -->
+  <!-- ============ COMMANDS: searchable explorer ============ -->
   <section id="commands">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Commands</span>
-        <h2>Every command below is implemented and shipping today.</h2>
-        <p>No placeholders — this is the full, current command set.</p>
+      <div class="sec-head reveal">
+        <h2>All 150 commands, implemented and shipping.</h2>
+        <p>
+          This list is generated from the same command registry the build script and installer
+          read, so it cannot drift from what actually ships.
+        </p>
       </div>
-      <div class="table-scroll">
-        <table id="commandsTable">
-          <caption>linuxcmd command compatibility — generated from the same list used by the installer</caption>
-          <thead>
-            <tr><th scope="col">Command</th><th scope="col">What it does</th><th scope="col">Windows implementation</th></tr>
-          </thead>
-          <tbody id="commandsBody"></tbody>
-        </table>
+
+      <div class="explorer-bar reveal">
+        <div class="field">
+          <label for="cmdSearch">Filter by name or description</label>
+          <div class="search-shell">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.75"/><path d="m10.5 10.5 3 3"/></svg>
+            <input id="cmdSearch" type="search" autocomplete="off" spellcheck="false" placeholder="grep, archive, process…">
+          </div>
+        </div>
+        <div class="chips" id="cmdChips" role="group" aria-label="Filter commands by category"></div>
+      </div>
+
+      <p class="result-count" id="cmdCount" role="status" aria-live="polite"></p>
+      <div class="cmd-grid" id="cmdGrid"></div>
+      <div class="empty-state" id="cmdEmpty" hidden>
+        <p>Nothing matches <strong id="cmdEmptyTerm"></strong> in this category.</p>
+        <button type="button" id="cmdReset">Clear filters</button>
       </div>
     </div>
   </section>
 
-  <!-- ===================== INSTALLATION ===================== -->
-  <section id="installation">
+  <!-- ============ HOW IT WORKS: annotated trace + rationale ============ -->
+  <section id="how-it-works">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Installation</span>
-        <h2>Three steps. No package manager required.</h2>
+      <div class="sec-head reveal">
+        <h2>One binary, 150 hardlinks.</h2>
+        <p>
+          Exactly one Go program is compiled. Every command on your <code>PATH</code> is a hardlink to
+          that same file, which reads its own invoked filename to decide what to run. BusyBox uses
+          the same technique on Linux.
+        </p>
       </div>
-      <div class="steps">
-        <div class="step">
-          <span class="num">1</span>
-          <h3>Download</h3>
-          <p>Grab the latest Windows release, or run the one-line installer below.</p>
+      <div class="how-grid">
+        <div class="codeblock reveal" role="img" aria-label="Trace of ls -la /tmp: argv zero selects the ls command, the parser reads the flags, the paths package resolves /tmp to a Windows path, os.ReadDir hits the filesystem, and the output package formats a Linux-style listing.">
+<div class="l"><span class="k">ls</span> -la /tmp</div>
+<div class="l">  <span class="c">↓</span> argv[0] = <span class="d">"ls.exe"</span>      <span class="c">→ command name "ls"</span></div>
+<div class="l">  <span class="c">↓</span> internal/parser     <span class="c">→ {l:true, a:true}, args ["/tmp"]</span></div>
+<div class="l">  <span class="c">↓</span> internal/paths      <span class="c">→ "/tmp" becomes a real Windows path</span></div>
+<div class="l">  <span class="c">↓</span> os.ReadDir/os.Stat  <span class="c">→ the NTFS filesystem, directly</span></div>
+<div class="l">  <span class="c">↓</span> internal/output     <span class="c">→ drwxr-xr-x ... Aug 17 12:30 name</span></div>
         </div>
-        <div class="step">
-          <span class="num">2</span>
-          <h3>Install</h3>
-          <p>Run the installer. It adds the command directory to your user <code>PATH</code> — no admin rights, no system changes.</p>
-        </div>
-        <div class="step">
-          <span class="num">3</span>
-          <h3>Open CMD</h3>
-          <p>Open a new normal CMD window and run <code>ls</code>. That's it.</p>
-        </div>
+        <ul class="why reveal">
+          <li>
+            <h3>Small on disk</h3>
+            <p>Hardlinks share the same on-disk data, so 150 separate executables cost the space of one, not 150 copies.</p>
+          </li>
+          <li>
+            <h3>Fast to start</h3>
+            <p>Every command is a native Windows process launch. No interpreter, and no shim spawning a second process.</p>
+          </li>
+          <li>
+            <h3>Cheap to extend</h3>
+            <p>A new command is one file in <code>commands/</code> that calls <code>command.Register</code> in an <code>init()</code> function. The build script and installer find it through <code>linuxcmd --list-commands</code>.</p>
+          </li>
+        </ul>
       </div>
+    </div>
+  </section>
 
-      <div class="install-cmd">
-        <span class="cmdtext" id="installCmdText"></span>
-        <button class="copy-btn" id="copyInstallBtn" type="button">Copy</button>
+  <!-- ============ PATHS: mapping list ============ -->
+  <section id="paths">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Linux path syntax, resolved to real Windows paths.</h2>
+        <p>
+          Windows has no single filesystem root shared across drives, so Linux path syntax is
+          translated rather than faked. Output always shows the real Windows path.
+        </p>
       </div>
-      <p class="note">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.2h.01M8 7.5v3.5"/></svg>
-        Open a new CMD window after installation so Windows reloads the updated PATH.
+      <ul class="pathmap reveal">
+        <li><span class="from">~/Documents</span><span class="arrow">→</span><span class="to">%USERPROFILE%\Documents</span></li>
+        <li><span class="from">/tmp/foo</span><span class="arrow">→</span><span class="to">%TEMP%\foo</span></li>
+        <li><span class="from">/dev/null</span><span class="arrow">→</span><span class="to">NUL</span></li>
+        <li><span class="from">/c/Users/x</span><span class="arrow">→</span><span class="to">C:\Users\x</span></li>
+        <li><span class="from">C:/x</span><span class="arrow">→</span><span class="to">C:\x</span></li>
+        <li><span class="from">/etc</span><span class="arrow">→</span><span class="to">&lt;current drive&gt;:\etc</span></li>
+      </ul>
+      <p class="footnote reveal">
+        <code>cmd.exe</code> never expands <code>*</code> or <code>?</code> before running a program, so each command
+        expands its own wildcards. <code>rm *.txt</code> behaves the way you expect, and an argument that matches
+        nothing is passed through untouched so real typos still produce a real error.
       </p>
     </div>
   </section>
 
-  <!-- ===================== EXAMPLES ===================== -->
+  <!-- ============ INSTALL: tabbed paths ============ -->
+  <section id="installation">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Install in one line. No admin rights.</h2>
+        <p>
+          The installer verifies the release checksum, drops the binaries in
+          <code>%LOCALAPPDATA%</code>, and adds that directory to your user <code>PATH</code>.
+          Nothing outside your own registry hive is touched.
+        </p>
+      </div>
+
+      <div class="reveal">
+        <div class="tabs" role="tablist" aria-label="Installation methods" id="installTabs"></div>
+        <div id="installPanel" role="tabpanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXAMPLES: tabbed live terminal ============ -->
   <section id="examples">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Examples</span>
-        <h2>See it in a real session.</h2>
-        <p>Switch tabs to see different commands run in sequence, in the same CMD window.</p>
+      <div class="sec-head reveal">
+        <h2>Real sessions, in a real Command Prompt.</h2>
+        <p>Pick a topic to watch those commands run in sequence, in the same CMD window.</p>
       </div>
-      <div class="tabs" role="tablist" aria-label="Example command sessions" id="exampleTabs"></div>
-      <div class="terminal" id="exampleTerminal">
-        <div class="terminal-bar">
-          <div class="title">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 3h12v10H2z"/><path d="M4 6l2 2-2 2M8 10h4"/></svg>
+      <div class="reveal">
+        <div class="tabs" role="tablist" aria-label="Example command sessions" id="exampleTabs"></div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4.5 6.5 6.5 8.5l-2 2M8.5 10.5h3.5"/></svg>
             Command Prompt
           </div>
-          <div class="terminal-controls" aria-hidden="true"><span>&minus;</span><span>&#9633;</span><span>&times;</span></div>
+          <div class="terminal-body" id="exampleTerminalBody" role="tabpanel" tabindex="0"></div>
         </div>
-        <div class="terminal-body" id="exampleTerminalBody" role="tabpanel"></div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== FEATURES ===================== -->
-  <section id="features">
+  <!-- ============ LIMITS: progressive disclosure ============ -->
+  <section id="limits">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Features</span>
-        <h2>Small in scope, precise in execution.</h2>
+      <div class="sec-head reveal">
+        <h2>The parts that are honest approximations.</h2>
+        <p>
+          Windows genuinely does not have some of the concepts these commands are built on.
+          Where that happens, the gap is documented rather than hidden.
+        </p>
       </div>
-      <div class="feature-grid" id="featureGrid"></div>
+      <div class="limits reveal">
+
+        <details>
+          <summary><span class="sign" aria-hidden="true"></span>cd, mkdir, rmdir and echo are shadowed by cmd.exe builtins</summary>
+          <div class="body">
+            <p>
+              <code>cmd.exe</code> resolves its own builtins before it ever looks at <code>PATH</code>, and that
+              order is hard-wired into its parser. So <code>cd.exe</code>, <code>mkdir.exe</code>, <code>rmdir.exe</code>
+              and <code>echo.exe</code> are complete working programs, usable through <code>linuxcmd cd ...</code>,
+              from scripts, or by typing the extension, but typing <code>cd</code> bare still runs the builtin
+              unless you opt in to the DOSKEY layer with <code>-EnableDoskeyOverrides</code>.
+            </p>
+            <p>
+              It stays opt-in because it is a small persistent change applied to every new interactive CMD
+              session, registered through the documented <code>HKCU</code> AutoRun extension point. The installer
+              appends its hook to any existing AutoRun value instead of replacing it, and removes only its own
+              segment on uninstall.
+            </p>
+            <p>
+              <code>cd</code> is special even then. No child process can change its parent shell's working
+              directory on any operating system, which is exactly why every Unix shell implements <code>cd</code>
+              as a builtin too. Here <code>cd.exe</code> resolves the Linux-style path and prints it, and the macro
+              feeds that back into the builtin inside the same process:
+            </p>
+            <pre>cd=for /f "usebackq delims=" %i in (`"%LINUXCMD_HOME%\cd.exe" $*`) do @cd /d "%i"</pre>
+            <p>
+              DOSKEY macros only expand for lines typed at an interactive prompt, so this layer cannot change
+              the behavior of any existing <code>.bat</code> or <code>.cmd</code> file.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="sign" aria-hidden="true"></span>Permission bits are approximated, not faked</summary>
+          <div class="body">
+            <p>
+              Windows has no POSIX rwxrwxrwx model. <code>ls -l</code> shows the real entry type, then derives a
+              single rwx-style triplet from the read-only attribute and repeats it three times, because Windows
+              draws no owner, group, and other distinction. Link counts always read <code>1</code>, and owner and
+              group both show the current Windows username.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="sign" aria-hidden="true"></span>kill has no signal semantics</summary>
+          <div class="body">
+            <p>
+              Every invocation maps onto <code>TerminateProcess</code>. Windows draws no SIGTERM against SIGKILL
+              distinction for arbitrary processes, so neither does this.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="sign" aria-hidden="true"></span>ping wraps the real Windows ping.exe</summary>
+          <div class="body">
+            <p>
+              Raw ICMP needs elevated privileges on Windows, so <code>ping</code> calls the system
+              <code>ping.exe</code> by explicit <code>System32</code> path with separated arguments, never a shell
+              string. Only <code>-c</code> is translated; other flags pass through as they are. A handful of other
+              commands do the same for the same reason, including <code>traceroute</code>, <code>netstat</code>,
+              <code>systemctl</code> and <code>journalctl</code>.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="sign" aria-hidden="true"></span>grep uses RE2, and ip is read-only</summary>
+          <div class="body">
+            <p>
+              <code>grep</code> uses Go's <code>regexp</code> package, which is close to POSIX extended but has no
+              backreferences and no lookaround.
+            </p>
+            <p>
+              <code>ip</code> covers <code>ip addr</code> and <code>ip link</code> over Go's <code>net</code>
+              package. There is no iproute2 on Windows to wrap, and route or tunnel modification is out of scope.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary><span class="sign" aria-hidden="true"></span>Pipelines and redirection come from cmd.exe, not from here</summary>
+          <div class="body">
+            <p>
+              These are ordinary executables reading real stdin and writing real stdout, so
+              <code>cmd.exe</code>'s own <code>|</code>, <code>&gt;</code> and <code>&gt;&gt;</code> already work with
+              all of them today. There is no built-in pipeline parser yet. The
+              <code>Context{Stdin,Stdout,Stderr}</code> design exists so one can be added later without reworking
+              any command.
+            </p>
+          </div>
+        </details>
+
+      </div>
     </div>
   </section>
 
-  <!-- ===================== COMPARISON ===================== -->
+  <!-- ============ COMPARISON ============ -->
   <section id="comparison">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Why this is different</span>
-        <h2>A thin layer for your existing terminal, not a second one.</h2>
-        <p>WSL and Git Bash solve a broader problem. linuxcmd solves one specific thing: familiar commands, inside the CMD you already have open.</p>
+      <div class="sec-head reveal">
+        <h2>Where this sits next to WSL and Git Bash.</h2>
+        <p>
+          WSL and Git Bash solve a broader problem, and solve it well. This solves one narrow thing:
+          familiar commands inside the terminal you already have open.
+        </p>
       </div>
-      <div class="table-scroll">
-        <table class="compare-table">
+      <div class="table-scroll reveal">
+        <table class="cmp">
+          <caption>Feature comparison, written from each tool's own documented scope</caption>
           <thead>
             <tr>
-              <th scope="col"></th>
+              <th scope="col">&nbsp;</th>
               <th scope="col" class="hl">linuxcmd</th>
-              <th scope="col">WSL</th>
+              <th scope="col">WSL 2</th>
               <th scope="col">Git Bash</th>
+              <th scope="col">Cygwin</th>
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row">Runs in normal CMD</th><td class="hl yes">&check;</td><td>&mdash;</td><td>&mdash;</td></tr>
-            <tr><th scope="row">Linux-style commands</th><td class="hl yes">&check;</td><td class="yes">&check;</td><td class="yes">&check;</td></tr>
-            <tr><th scope="row">Full Linux environment</th><td class="hl">&mdash;</td><td class="yes">&check;</td><td>&mdash;</td></tr>
-            <tr><th scope="row">Requires a Linux distribution</th><td class="hl">&mdash;</td><td class="yes">&check;</td><td>&mdash;</td></tr>
-            <tr><th scope="row">Lightweight command layer</th><td class="hl yes">&check;</td><td>&mdash;</td><td class="yes">&check;</td></tr>
+            <tr><th scope="row">Runs inside cmd.exe</th><td class="hl yes">Yes</td><td>No</td><td>No</td><td>No</td></tr>
+            <tr><th scope="row">Needs a Linux distribution</th><td class="hl yes">No</td><td>Yes</td><td>No</td><td>No</td></tr>
+            <tr><th scope="row">Second filesystem to manage</th><td class="hl yes">No</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Full POSIX shell and scripting</th><td class="hl">No</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Package manager included</th><td class="hl">No</td><td class="yes">Yes</td><td>No</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Install requires admin rights</th><td class="hl yes">No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ===================== OPEN SOURCE ===================== -->
+  <!-- ============ CLOSING CTA ============ -->
   <section id="opensource">
     <div class="wrap">
-      <div class="oss">
-        <span class="eyebrow">Open source</span>
-        <h2>Built in Go. Designed to be simple. Made to be extended.</h2>
-        <p>The command registry, argument parser, and path layer are all plain Go — reading one command's source is enough to add another.</p>
+      <div class="closing reveal">
+        <h2>Written in Go, built to be read.</h2>
+        <p>
+          The command registry, flag parser, and path layer are all plain Go. Reading one command's
+          source is genuinely enough to write the next one, and the build script picks it up with no
+          other file to edit.
+        </p>
         <div class="hero-ctas">
           <a class="btn btn-primary" data-cfg="githubUrl" href="#">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-            View source on GitHub
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+            Star on GitHub
           </a>
-          <a class="btn btn-ghost" data-cfg="downloadUrl" href="#">Download latest release</a>
+          <a class="btn btn-ghost" data-cfg="docsUrl" href="#">Read the docs</a>
         </div>
       </div>
     </div>
@@ -574,329 +921,721 @@
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a class="logo" href="#hero"><span class="prompt">&gt;</span>linuxcmd</a>
-        <p>Linux commands, native on Windows. Built with Go. Open source.</p>
+        <a class="logo" href="#hero"><span class="sig">&gt;</span>linuxcmd</a>
+        <p>Linux commands, native on Windows. One Go binary, MIT licensed.</p>
       </div>
       <div class="footer-links">
         <div>
-          <h4>Project</h4>
+          <h3>Project</h3>
           <ul>
-            <li><a data-cfg="githubUrl" href="#">GitHub</a></li>
-            <li><a data-cfg="downloadUrl" href="#">Download</a></li>
+            <li><a data-cfg="githubUrl" href="#">Source</a></li>
+            <li><a data-cfg="downloadUrl" href="#">Releases</a></li>
             <li><a data-cfg="docsUrl" href="#">Documentation</a></li>
+            <li><a data-cfg="issuesUrl" href="#">Report an issue</a></li>
           </ul>
         </div>
         <div>
-          <h4>Page</h4>
+          <h3>On this page</h3>
           <ul>
             <li><a href="#commands">Commands</a></li>
             <li><a href="#how-it-works">How it works</a></li>
             <li><a href="#installation">Install</a></li>
+            <li><a href="#limits">Limits</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Legal</h3>
+          <ul>
+            <li><a data-cfg="licenseUrl" href="#">MIT License</a></li>
           </ul>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>&copy; <span id="year"></span> Saroj Khanal &middot; MIT License</span>
+      <span>&copy; <span id="year"></span> Saroj Khanal</span>
       <span>Not affiliated with Microsoft or any Linux distribution.</span>
     </div>
   </div>
 </footer>
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"SoftwareApplication",
+  "name":"linuxcmd",
+  "applicationCategory":"DeveloperApplication",
+  "operatingSystem":"Windows 10, Windows 11",
+  "description":"A Linux command compatibility layer for the native Windows cmd.exe prompt, written in Go. Ships 150 commands as real Windows executables with no WSL, Cygwin, or virtual machine.",
+  "url":"https://khanalsaroj.github.io/linuxcmd/",
+  "codeRepository":"https://github.com/khanalsaroj/linuxcmd",
+  "programmingLanguage":"Go",
+  "license":"https://opensource.org/licenses/MIT",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "author":{"@type":"Person","name":"Saroj Khanal"}
+}
+</script>
+
 <script>
 (function(){
   "use strict";
 
-  /* ---------------------------------------------------------------
-   * Single place to edit project identity / links.
-   * ------------------------------------------------------------- */
-  const CONFIG = {
-    projectName: "linuxcmd",
-    githubUrl: "https://github.com/khanalsaroj/linuxcmd",
+  /* =============================================================
+   * Project identity. Everything link-shaped is edited here once.
+   * =========================================================== */
+  var CONFIG = {
+    githubUrl:   "https://github.com/khanalsaroj/linuxcmd",
     downloadUrl: "https://github.com/khanalsaroj/linuxcmd/releases/latest",
-    docsUrl: "https://github.com/khanalsaroj/linuxcmd#readme",
-    installCommand: 'iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 | iex'
+    docsUrl:     "https://github.com/khanalsaroj/linuxcmd#readme",
+    issuesUrl:   "https://github.com/khanalsaroj/linuxcmd/issues",
+    licenseUrl:  "https://github.com/khanalsaroj/linuxcmd/blob/main/LICENSE",
+    installCommand: "iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 | iex"
   };
 
-  document.querySelectorAll("[data-cfg]").forEach(function(el){
-    const key = el.getAttribute("data-cfg");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-cfg]"), function(el){
+    var key = el.getAttribute("data-cfg");
     if (CONFIG[key]) el.setAttribute("href", CONFIG[key]);
   });
-  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("year").textContent = String(new Date().getFullYear());
 
-  /* ---------------------------------------------------------------
-   * Command list — single source of truth for the compatibility table.
-   * Only commands that actually ship are listed here.
-   * ------------------------------------------------------------- */
-  const COMMANDS = [
-    ["ls",       "List directory contents",            "Directory read + Windows file attributes"],
-    ["pwd",      "Print the current directory",         "os.Getwd, path normalized to Windows form"],
-    ["cd",       "Change directory",                    "Resolved via cd.exe + optional DOSKEY handoff"],
-    ["mkdir",    "Create directories",                  "Recursive directory creation"],
-    ["rmdir",    "Remove empty directories",             "Directory removal"],
-    ["cp",       "Copy files and directories",           "Recursive file copy"],
-    ["mv",       "Move or rename files",                 "Rename, with copy+delete fallback across volumes"],
-    ["rm",       "Delete files and directories",         "Recursive delete"],
-    ["cat",      "Print file contents",                  "Sequential file read"],
-    ["touch",    "Create files or update timestamps",    "File creation / mtime update"],
-    ["echo",     "Print text, with $VAR expansion",      "Environment variable lookup + expansion"],
-    ["clear",    "Clear the terminal screen",             "Console VT100 mode via kernel32"],
-    ["whoami",   "Print the current username",            "Windows account name lookup"],
-    ["hostname", "Print the computer name",               "COMPUTERNAME lookup"],
-    ["grep",     "Search text with patterns",              "Line-based pattern matching"],
-    ["find",     "Search for files",                       "Recursive filesystem walk"],
-    ["ping",     "Ping a host, Linux-style flags",          "Wraps the native System32\\PING.EXE"],
-    ["ip",       "Show network interface info",             "Windows network interface enumeration"],
-    ["ps",       "List running processes",                  "CreateToolhelp32Snapshot"],
-    ["kill",     "Terminate a process by PID",               "OpenProcess + TerminateProcess"]
-  ];
+  var reduceMotion = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
 
-  const tbody = document.getElementById("commandsBody");
-  COMMANDS.forEach(function(row){
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      '<td><span class="cmdname">' + row[0] + '</span></td>' +
-      '<td class="desc-cell">' + row[1] + '</td>' +
-      '<td class="desc-cell">' + row[2] + '</td>';
-    tbody.appendChild(tr);
-  });
-
-  /* ---------------------------------------------------------------
-   * How it works — pipeline diagram
-   * ------------------------------------------------------------- */
-  const FLOW = [
-    ["Windows CMD", "The terminal you already have open."],
-    ["Linux command", "Familiar syntax: ls, grep, rm, cat…"],
-    ["Compatibility layer", "Parses args, resolves paths, maps errors."],
-    ["Go implementation", "One static binary, per-command dispatch."],
-    ["Windows APIs", "Win32 syscalls and the real NTFS filesystem."]
-  ];
-  const flowEl = document.getElementById("flowDiagram");
-  const arrow = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>';
-  FLOW.forEach(function(step, i){
-    const card = document.createElement("div");
-    card.className = "flow-step";
-    card.innerHTML = '<span class="num">0' + (i+1) + '</span><h3>' + step[0] + '</h3><p>' + step[1] + '</p>';
-    flowEl.appendChild(card);
-    if (i < FLOW.length - 1){
-      const a = document.createElement("div");
-      a.className = "flow-arrow";
-      a.innerHTML = arrow;
-      a.setAttribute("aria-hidden","true");
-      flowEl.appendChild(a);
-    }
-  });
-
-  /* ---------------------------------------------------------------
-   * Features grid
-   * ------------------------------------------------------------- */
-  const FEATURES = [
-    ["Linux-style commands", "Familiar syntax and flags for the commands people use every day."],
-    ["Works in normal CMD", "No special terminal app required — the Windows console you already use."],
-    ["Written in Go", "A single static, cross-compiled binary with no runtime dependencies."],
-    ["No WSL required", "Nothing to enable, install, or keep updated at the OS level."],
-    ["No Linux environment", "Behavior is implemented natively, not emulated inside a distro."],
-    ["Native Windows execution", "Talks to Win32 APIs and NTFS directly."],
-    ["Lightweight", "One small binary, hardlinked per command — nothing else to run."],
-    ["Extensible architecture", "A simple command registry makes adding a new command straightforward."],
-    ["Open source", "MIT licensed and built to be read, forked, and extended."]
-  ];
-  const icon = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3"/><path d="M5.5 8.5 7 10l3.5-4"/></svg>';
-  const featureGrid = document.getElementById("featureGrid");
-  FEATURES.forEach(function(f){
-    const div = document.createElement("div");
-    div.className = "feature";
-    div.innerHTML = icon + '<h3>' + f[0] + '</h3><p>' + f[1] + '</p>';
-    featureGrid.appendChild(div);
-  });
-
-  /* ---------------------------------------------------------------
-   * Terminal rendering + typewriter
-   * ------------------------------------------------------------- */
-  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function lineHTML(prompt, cmd){
-    return '<span class="prompt">' + prompt + '</span> <span class="cmd">' + cmd + '</span>';
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   }
 
-  // Each session: array of { prompt, cmd, out: [ "html strings" ] }
-  const HERO_SESSION = [
-    { prompt: "C:\\Users\\Alex&gt;", cmd: "ls -la", out: [
-        '<span class="tok-dir">drwxr-xr-x</span>  Documents',
-        '<span class="tok-dir">drwxr-xr-x</span>  Downloads',
-        '<span class="tok-file">-rw-r--r--</span>  notes.txt',
-        '<span class="tok-file">-rw-r--r--</span>  project.go' ] },
-    { prompt: "C:\\Users\\Alex&gt;", cmd: "pwd", out: [ 'C:\\Users\\Alex' ] },
-    { prompt: "C:\\Users\\Alex&gt;", cmd: "cat notes.txt", out: [ 'Hello from Windows.' ] }
+  /* =============================================================
+   * Command registry.
+   * Generated from `linuxcmd --help`, which reads the same Go
+   * command registry the build script and installer use.
+   * Shape: [name, summary, category]
+   * =========================================================== */
+  var COMMANDS = [
+    ["arch", "print machine architecture", "system"],
+    ["arp", "show the ARP/neighbor table", "network"],
+    ["at", "schedule a one-time command via Task Scheduler", "system"],
+    ["awk", "field-split and print lines (small AWK subset)", "text"],
+    ["base64", "encode or decode base64", "text"],
+    ["basename", "strip directory and suffix from a path", "files"],
+    ["bc", "evaluate arithmetic expressions", "system"],
+    ["bzip2", "decompress .bz2 files (compression unsupported)", "archive"],
+    ["cat", "concatenate and print files", "files"],
+    ["cd", "resolve a directory path (see README: cannot change the parent shell's directory on its own)", "files"],
+    ["chgrp", "grant a group access (approximates chgrp; Windows has no primary-group field)", "files"],
+    ["chmod", "change file write permission (Windows read-only attribute)", "files"],
+    ["chown", "change file owner (wraps icacls /setowner)", "files"],
+    ["cksum", "print CRC checksum and byte count", "hash"],
+    ["clear", "clear the terminal screen", "system"],
+    ["cmp", "compare two files byte by byte", "text"],
+    ["column", "align delimiter-separated input into columns", "text"],
+    ["comm", "compare two sorted files line by line", "text"],
+    ["cp", "copy files and directories", "files"],
+    ["crontab", "list scheduled tasks (via Task Scheduler)", "system"],
+    ["csplit", "split a file at line-number or regex boundaries", "text"],
+    ["curl", "transfer data from a URL", "network"],
+    ["cut", "select fields or columns from each line", "text"],
+    ["date", "print or format the current date and time", "system"],
+    ["dd", "copy fixed-size blocks between files", "files"],
+    ["df", "report volume free/used space", "files"],
+    ["diff", "compare two files line by line", "text"],
+    ["dig", "query DNS records for a name", "network"],
+    ["dirname", "print the directory component of a path", "files"],
+    ["dmesg", "show recent system log messages", "system"],
+    ["du", "estimate file space usage", "files"],
+    ["echo", "display a line of text", "text"],
+    ["env", "list environment variables or run a command with overrides", "system"],
+    ["expand", "convert tabs to spaces", "text"],
+    ["expr", "evaluate a simple integer, string, or regex expression", "system"],
+    ["factor", "print prime factors of an integer", "system"],
+    ["false", "always fail", "system"],
+    ["file", "identify a file's type", "files"],
+    ["find", "search for files in a directory tree", "files"],
+    ["fmt", "reflow plain-text paragraphs", "text"],
+    ["fold", "wrap each line to a given width", "text"],
+    ["free", "report physical and virtual memory usage", "system"],
+    ["getconf", "print a small set of system configuration values", "system"],
+    ["getent", "query hosts, passwd, or group databases", "system"],
+    ["git", "wrap the installed git.exe", "system"],
+    ["grep", "search text using patterns", "text"],
+    ["groups", "print the current user's group memberships", "system"],
+    ["gzip", "compress or decompress files with gzip", "archive"],
+    ["head", "print the first part of files", "text"],
+    ["help", "show usage for linuxcmd commands", "system"],
+    ["host", "look up a hostname's DNS records", "network"],
+    ["hostid", "print a machine-derived identifier", "system"],
+    ["hostname", "print the system hostname", "system"],
+    ["hostnamectl", "show host metadata", "system"],
+    ["id", "print user and group identity", "system"],
+    ["install", "copy a file, creating parent directories", "files"],
+    ["ip", "show network interfaces and addresses", "network"],
+    ["join", "join lines of two sorted files on a common field", "text"],
+    ["journalctl", "show recent Application log entries", "system"],
+    ["kill", "terminate a process by PID (no signal distinction on Windows)", "process"],
+    ["last", "show recent sign-in events from the Security event log", "system"],
+    ["less", "page through file contents (more-equivalent subset)", "text"],
+    ["ln", "create hard or symbolic links", "files"],
+    ["ls", "list directory contents", "files"],
+    ["lscpu", "display CPU architecture information", "system"],
+    ["lsmem", "display memory ranges and totals", "system"],
+    ["md5sum", "print or check md5sum checksums", "hash"],
+    ["mkdir", "create directories", "files"],
+    ["mkfifo", "create a FIFO (unsupported on Windows)", "files"],
+    ["mktemp", "create a unique temporary file or directory", "files"],
+    ["more", "page through file contents", "text"],
+    ["mv", "move/rename files and directories", "files"],
+    ["nc", "basic TCP/UDP client and listener", "network"],
+    ["netstat", "show network connections and listening sockets", "network"],
+    ["nice", "run a command with an adjusted scheduling priority", "process"],
+    ["nl", "number lines of a file", "text"],
+    ["nohup", "run a command immune to console hangups", "process"],
+    ["nproc", "print the number of available processors", "system"],
+    ["nslookup", "query DNS for a name's addresses", "network"],
+    ["openssl", "rand/dgst subcommands (small safe subset of OpenSSL)", "hash"],
+    ["paste", "merge corresponding lines of files", "text"],
+    ["pgrep", "find process IDs by name", "process"],
+    ["ping", "send ICMP echo requests to a host", "network"],
+    ["pkill", "terminate processes by name", "process"],
+    ["poweroff", "shut the machine down (shutdown -h now)", "system"],
+    ["printenv", "print environment variables", "system"],
+    ["printf", "format and print arguments", "text"],
+    ["ps", "report a snapshot of current processes", "process"],
+    ["pstree", "print a process tree", "process"],
+    ["pwd", "print working directory", "files"],
+    ["readlink", "print a symbolic link's target", "files"],
+    ["realpath", "print a resolved absolute path", "files"],
+    ["reboot", "restart the machine (shutdown -r now)", "system"],
+    ["renice", "change a running process's scheduling priority", "process"],
+    ["rev", "reverse the characters of each line", "text"],
+    ["rm", "remove files and directories", "files"],
+    ["rmdir", "remove empty directories", "files"],
+    ["route", "show or modify the IP routing table", "network"],
+    ["sed", "stream-edit lines (subset: one s/// or d command)", "text"],
+    ["seq", "print a numeric sequence", "system"],
+    ["service", "control a Windows service (NAME status/start/stop)", "system"],
+    ["sha1sum", "print or check sha1sum checksums", "hash"],
+    ["sha256sum", "print or check sha256sum checksums", "hash"],
+    ["shred", "overwrite a file with random data before deleting", "files"],
+    ["shuf", "randomly permute lines of input", "text"],
+    ["shutdown", "halt or reboot the machine via shutdown.exe", "system"],
+    ["sleep", "pause for a duration", "process"],
+    ["sort", "sort lines of text", "text"],
+    ["split", "split a file into pieces", "text"],
+    ["ss", "show sockets (netstat-based approximation)", "network"],
+    ["stat", "display file metadata", "files"],
+    ["strings", "extract printable sequences from a file", "text"],
+    ["stty", "report or change console mode flags", "system"],
+    ["sync", "flush file system buffers (no-op on this build)", "files"],
+    ["systemctl", "control Windows services (status/start/stop/restart)", "system"],
+    ["tac", "print lines in reverse order", "text"],
+    ["tail", "print the last part of files", "text"],
+    ["tar", "create or extract tar archives", "archive"],
+    ["tee", "copy stdin to stdout and files", "text"],
+    ["test", "evaluate a conditional expression", "system"],
+    ["time", "run a command and report elapsed time", "process"],
+    ["timeout", "run a command with a time limit", "process"],
+    ["top", "display a refreshing process list", "process"],
+    ["touch", "create files / update timestamps", "files"],
+    ["tr", "translate or delete characters", "text"],
+    ["traceroute", "trace the network path to a host", "network"],
+    ["tree", "print a directory tree", "files"],
+    ["true", "always succeed", "system"],
+    ["truncate", "shrink or extend a file to a given size", "files"],
+    ["tty", "print the terminal connected to standard input", "system"],
+    ["umask", "report a compatibility file-creation mask (does not persist to the parent shell)", "files"],
+    ["uname", "print system information", "system"],
+    ["unexpand", "convert spaces to tabs", "text"],
+    ["uniq", "report or filter out repeated adjacent lines", "text"],
+    ["unzip", "extract a ZIP archive", "archive"],
+    ["uptime", "report how long the system has been running", "system"],
+    ["users", "print interactive session usernames", "system"],
+    ["w", "show who is logged in and system uptime", "system"],
+    ["watch", "re-run a command periodically", "process"],
+    ["wc", "count lines, words, and bytes", "text"],
+    ["wget", "download a URL to a file", "network"],
+    ["whereis", "locate a command's binary and, if registered, its linuxcmd origin", "system"],
+    ["which", "locate a command on PATH", "system"],
+    ["who", "list active sessions", "system"],
+    ["whoami", "print the current user name", "system"],
+    ["xargs", "build and run commands from stdin", "process"],
+    ["xxd", "hex dump (or reverse) a file", "text"],
+    ["xz", "XZ compression (not supported in this build)", "archive"],
+    ["yes", "repeatedly print a line", "system"],
+    ["zip", "create a ZIP archive", "archive"]
   ];
 
-  const EXAMPLE_SESSIONS = {
-    "Basics": [
-      { prompt: "C:\\Users\\Alex&gt;", cmd: "ls", out: [ '<span class="tok-dir">Documents</span>   <span class="tok-dir">Downloads</span>   notes.txt   project.go' ] },
-      { prompt: "C:\\Users\\Alex&gt;", cmd: "cd Documents", out: [] },
-      { prompt: "C:\\Users\\Alex\\Documents&gt;", cmd: "ls", out: [ 'notes.txt   report.docx' ] },
-      { prompt: "C:\\Users\\Alex\\Documents&gt;", cmd: "cat notes.txt", out: [ 'Meeting at 10am.' ] }
-    ],
+  var CATEGORY_LABELS = {
+    all:"all", files:"files", text:"text", process:"process",
+    network:"network", archive:"archive", hash:"checksums", system:"system"
+  };
+  var CATEGORY_ORDER = ["all","files","text","process","network","archive","hash","system"];
+
+  var gridEl   = document.getElementById("cmdGrid");
+  var chipsEl  = document.getElementById("cmdChips");
+  var countEl  = document.getElementById("cmdCount");
+  var emptyEl  = document.getElementById("cmdEmpty");
+  var termEl   = document.getElementById("cmdEmptyTerm");
+  var searchEl = document.getElementById("cmdSearch");
+  var resetEl  = document.getElementById("cmdReset");
+
+  var activeCategory = "all";
+
+  CATEGORY_ORDER.forEach(function(cat){
+    var n = cat === "all"
+      ? COMMANDS.length
+      : COMMANDS.filter(function(c){ return c[2] === cat; }).length;
+    if (!n) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.setAttribute("aria-pressed", cat === "all" ? "true" : "false");
+    b.dataset.cat = cat;
+    b.innerHTML = CATEGORY_LABELS[cat] + '<span class="n">' + n + "</span>";
+    b.addEventListener("click", function(){
+      activeCategory = cat;
+      Array.prototype.forEach.call(chipsEl.children, function(c){
+        c.setAttribute("aria-pressed", c === b ? "true" : "false");
+      });
+      render();
+    });
+    chipsEl.appendChild(b);
+  });
+
+  function highlight(text, query){
+    var safe = esc(text);
+    if (!query) return safe;
+    var i = safe.toLowerCase().indexOf(query.toLowerCase());
+    if (i < 0) return safe;
+    return safe.slice(0, i) + "<mark>" + safe.slice(i, i + query.length) + "</mark>" + safe.slice(i + query.length);
+  }
+
+  function render(){
+    var q = searchEl.value.trim();
+    var lower = q.toLowerCase();
+    var rows = COMMANDS.filter(function(c){
+      if (activeCategory !== "all" && c[2] !== activeCategory) return false;
+      if (!lower) return true;
+      return c[0].indexOf(lower) >= 0 || c[1].toLowerCase().indexOf(lower) >= 0;
+    });
+
+    if (!rows.length){
+      gridEl.innerHTML = "";
+      termEl.textContent = q || CATEGORY_LABELS[activeCategory];
+      emptyEl.hidden = false;
+      countEl.textContent = "0 of " + COMMANDS.length + " commands";
+      return;
+    }
+
+    emptyEl.hidden = true;
+    gridEl.innerHTML = rows.map(function(c){
+      return '<article class="cmd-tile"><b>' + highlight(c[0], q) + "</b><span>" +
+             highlight(c[1], q) + "</span></article>";
+    }).join("");
+    countEl.textContent = rows.length === COMMANDS.length
+      ? COMMANDS.length + " commands"
+      : rows.length + " of " + COMMANDS.length + " commands";
+  }
+
+  var searchTimer;
+  searchEl.addEventListener("input", function(){
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(render, 90);
+  });
+  resetEl.addEventListener("click", function(){
+    searchEl.value = "";
+    activeCategory = "all";
+    Array.prototype.forEach.call(chipsEl.children, function(c){
+      c.setAttribute("aria-pressed", c.dataset.cat === "all" ? "true" : "false");
+    });
+    render();
+    searchEl.focus();
+  });
+  render();
+
+  /* =============================================================
+   * Terminal transcripts.
+   * Output mirrors what these commands actually print: ls -l keeps
+   * a link count of 1 and repeats the username for owner and group,
+   * because Windows carries no POSIX group.
+   * =========================================================== */
+  var HERO_SESSION = [
+    { cwd:"C:\\src\\app", cmd:"ls -la", out:[
+        '<span class="tok-faint">total 148</span>',
+        'drwxr-xr-x 1 saroj saroj 4096 Aug 17 12:30 <span class="tok-dir">.</span>',
+        'drwxr-xr-x 1 saroj saroj 4096 Aug 17 12:28 <span class="tok-dir">..</span>',
+        '-rw-r--r-- 1 saroj saroj 3902 Aug 17 12:30 app.go',
+        '-rw-r--r-- 1 saroj saroj  118 Aug 17 12:11 go.mod' ] },
+    { cwd:"C:\\src\\app", cmd:"grep -n \"TODO\" app.go", out:[
+        'app.go:42:  // TODO: retry on 429' ] },
+    { cwd:"C:\\src\\app", cmd:"wc -l app.go", out:[ '     214 app.go' ] }
+  ];
+
+  var EXAMPLE_SESSIONS = {
     "Files": [
-      { prompt: "C:\\Users\\Alex\\Documents&gt;", cmd: "cp notes.txt backup.txt", out: [] },
-      { prompt: "C:\\Users\\Alex\\Documents&gt;", cmd: "mv backup.txt archive.txt", out: [] },
-      { prompt: "C:\\Users\\Alex\\Documents&gt;", cmd: "ls", out: [ 'archive.txt   notes.txt   report.docx' ] },
-      { prompt: "C:\\Users\\Alex\\Documents&gt;", cmd: "rm archive.txt", out: [] }
+      { cwd:"C:\\src\\linuxcmd", cmd:"cp -r internal internal.bak", out:[] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"du -sh internal.bak", out:[ '84K     internal.bak' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"tree -L 1 internal", out:[
+          'internal',
+          '├── command',
+          '├── environment',
+          '├── fsutil',
+          '├── output',
+          '├── parser',
+          '└── paths' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"rm -rf internal.bak", out:[] }
     ],
-    "Search": [
-      { prompt: "C:\\Users\\Alex\\project&gt;", cmd: "grep \"TODO\" main.go", out: [ 'main.go:42:  // TODO: handle glob edge case' ] },
-      { prompt: "C:\\Users\\Alex\\project&gt;", cmd: "find . -name \"*.go\"", out: [ '.\\main.go', '.\\commands\\ls.go', '.\\commands\\grep.go' ] },
-      { prompt: "C:\\Users\\Alex\\project&gt;", cmd: "ps", out: [ '<span class="tok-ok">PID</span>   NAME', '4821  linuxcmd.exe', '2210  cmd.exe' ] },
-      { prompt: "C:\\Users\\Alex\\project&gt;", cmd: "kill 4821", out: [] }
+    "Text": [
+      { cwd:"C:\\src\\linuxcmd", cmd:"grep -in \"todo\" commands/*.go", out:[
+          'commands/tar.go:118:  // TODO: bzip2 and xz writers' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"cut -d, -f2 hosts.csv | sort | uniq -c", out:[
+          '     14 amd64',
+          '      6 arm64' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"sed \"s/v1.1.0/v1.2.0/\" version.txt", out:[ 'linuxcmd v1.2.0' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"awk -F: \"{print $1}\" ports.conf | head -3", out:[
+          'http', 'https', 'ssh' ] }
+    ],
+    "System": [
+      { cwd:"C:\\src\\linuxcmd", cmd:"uptime", out:[ ' 14:22:07 up 3 days,  6:41' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"free -h", out:[
+          '              total        used        free',
+          'Mem:           31Gi        18Gi        13Gi' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"ps | grep -i code", out:[
+          '<span class="tok-ok"> 9184</span>   4012  Code.exe',
+          '<span class="tok-ok">11720</span>   9184  Code.exe' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"nproc", out:[ '16' ] }
+    ],
+    "Network": [
+      { cwd:"C:\\src\\linuxcmd", cmd:"ping -c 2 example.com", out:[
+          'Pinging example.com [93.184.216.34] with 32 bytes of data:',
+          'Reply from 93.184.216.34: bytes=32 time=118ms TTL=52',
+          'Reply from 93.184.216.34: bytes=32 time=121ms TTL=52' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"dig +short example.com", out:[ '93.184.216.34' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"curl -I https://example.com", out:[
+          '<span class="tok-ok">HTTP/2 200</span>',
+          'content-type: text/html; charset=UTF-8' ] },
+      { cwd:"C:\\src\\linuxcmd", cmd:"ip link", out:[
+          '1: lo: &lt;LOOPBACK,UP&gt; mtu 1500',
+          '2: Ethernet: &lt;BROADCAST,MULTICAST,UP&gt; mtu 1500' ] }
     ]
   };
 
-  function renderStatic(container, session){
-    container.innerHTML = session.map(function(step){
-      const cmdLine = '<div class="line">' + lineHTML(step.prompt, step.cmd) + '</div>';
-      const out = step.out.map(function(o){ return '<div class="line out">' + o + '</div>'; }).join('');
-      return cmdLine + out + '<div class="line">&nbsp;</div>';
-    }).join('');
+  function promptHTML(cwd){
+    return '<span class="prompt">' + esc(cwd) + "&gt;</span> ";
   }
 
-  function typeSession(container, session, done){
-    container.innerHTML = '';
-    let stepIndex = 0;
+  function renderStatic(container, session){
+    container.innerHTML = session.map(function(s){
+      var head = '<div class="line">' + promptHTML(s.cwd) + '<span class="cmd">' + esc(s.cmd) + "</span></div>";
+      var body = s.out.map(function(o){ return '<div class="line out">' + o + "</div>"; }).join("");
+      return head + body + '<div class="line">&nbsp;</div>';
+    }).join("");
+  }
 
-    function typeStep(){
-      if (stepIndex >= session.length){
-        if (done) done();
+  /* Typewriter. Returns a cancel handle so switching tabs mid-run
+   * never leaves two transcripts typing into the same element. */
+  function typeSession(container, session){
+    var cancelled = false;
+    var timers = [];
+    function wait(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+    container.innerHTML = "";
+    var step = 0;
+
+    function nextStep(){
+      if (cancelled) return;
+      if (step >= session.length){
+        var end = document.createElement("span");
+        end.className = "caret";
+        container.appendChild(end);
         return;
       }
-      const step = session[stepIndex];
-      const lineEl = document.createElement('div');
-      lineEl.className = 'line';
+      var s = session[step];
+      var lineEl = document.createElement("div");
+      lineEl.className = "line";
       container.appendChild(lineEl);
 
-      const promptSpan = '<span class="prompt">' + step.prompt + '</span> ';
-      let i = 0;
-      const full = step.cmd;
-      const speed = 26;
+      var head = promptHTML(s.cwd);
+      var i = 0;
 
       (function typeChar(){
-        lineEl.innerHTML = promptSpan + '<span class="cmd">' + full.slice(0, i) + '</span><span class="caret"></span>';
+        if (cancelled) return;
+        lineEl.innerHTML = head + '<span class="cmd">' + esc(s.cmd.slice(0, i)) + '</span><span class="caret"></span>';
         i++;
-        if (i <= full.length){
-          setTimeout(typeChar, speed);
-        } else {
-          lineEl.innerHTML = promptSpan + '<span class="cmd">' + full + '</span>';
-          step.out.forEach(function(o){
-            const outEl = document.createElement('div');
-            outEl.className = 'line out';
-            outEl.innerHTML = o;
-            container.appendChild(outEl);
-          });
-          const spacer = document.createElement('div');
-          spacer.className = 'line';
-          spacer.innerHTML = '&nbsp;';
-          container.appendChild(spacer);
-          stepIndex++;
-          setTimeout(typeStep, 380);
+        if (i <= s.cmd.length){
+          wait(24, typeChar);
+          return;
         }
+        lineEl.innerHTML = head + '<span class="cmd">' + esc(s.cmd) + "</span>";
+        s.out.forEach(function(o){
+          var el = document.createElement("div");
+          el.className = "line out";
+          el.innerHTML = o;
+          container.appendChild(el);
+        });
+        var spacer = document.createElement("div");
+        spacer.className = "line";
+        spacer.innerHTML = "&nbsp;";
+        container.appendChild(spacer);
+        step++;
+        wait(360, nextStep);
       })();
     }
-    typeStep();
+    nextStep();
+
+    return function cancel(){
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
   }
 
-  const heroBody = document.getElementById('heroTerminalBody');
-  if (reduceMotion){
+  /* Hero transcript starts only once it is actually on screen, so the
+   * animation is not already finished before the visitor sees it. */
+  var heroBody = document.getElementById("heroTerminalBody");
+  if (reduceMotion || !("IntersectionObserver" in window)){
     renderStatic(heroBody, HERO_SESSION);
   } else {
-    typeSession(heroBody, HERO_SESSION, function(){
-      const caret = document.createElement('span');
-      caret.className = 'caret';
-      heroBody.appendChild(caret);
-    });
+    var heroSeen = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        heroSeen.disconnect();
+        typeSession(heroBody, HERO_SESSION);
+      });
+    }, { threshold: .25 });
+    heroSeen.observe(heroBody);
   }
 
-  /* ---------------------------------------------------------------
-   * Examples tabs
-   * ------------------------------------------------------------- */
-  const tabsEl = document.getElementById('exampleTabs');
-  const exampleBody = document.getElementById('exampleTerminalBody');
-  const tabNames = Object.keys(EXAMPLE_SESSIONS);
+  /* ---------- Example tabs ---------- */
+  var exampleTabs = document.getElementById("exampleTabs");
+  var exampleBody = document.getElementById("exampleTerminalBody");
+  var exampleNames = Object.keys(EXAMPLE_SESSIONS);
+  var cancelExample = null;
 
-  function showSession(name){
-    const session = EXAMPLE_SESSIONS[name];
+  function showExample(name){
+    if (cancelExample) cancelExample();
+    var session = EXAMPLE_SESSIONS[name];
+    exampleBody.setAttribute("aria-label", name + " command session");
     if (reduceMotion){
       renderStatic(exampleBody, session);
+      cancelExample = null;
     } else {
-      typeSession(exampleBody, session, null);
+      cancelExample = typeSession(exampleBody, session);
     }
   }
 
-  tabNames.forEach(function(name, i){
-    const btn = document.createElement('button');
-    btn.className = 'tab';
-    btn.type = 'button';
-    btn.textContent = name;
-    btn.setAttribute('role','tab');
-    btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-    btn.addEventListener('click', function(){
-      tabsEl.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-selected','false'); });
-      btn.setAttribute('aria-selected','true');
-      showSession(name);
+  exampleNames.forEach(function(name, i){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "tab";
+    b.textContent = name;
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(exampleTabs.children, function(t){
+        t.setAttribute("aria-selected", t === b ? "true" : "false");
+      });
+      showExample(name);
     });
-    tabsEl.appendChild(btn);
+    exampleTabs.appendChild(b);
   });
-  showSession(tabNames[0]);
+  showExample(exampleNames[0]);
 
-  /* ---------------------------------------------------------------
-   * Install command copy
-   * ------------------------------------------------------------- */
-  document.getElementById('installCmdText').innerHTML =
-    'iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 <span class="fn">|</span> iex';
+  /* =============================================================
+   * Installation methods
+   * =========================================================== */
+  var INSTALL = [
+    {
+      name: "PowerShell",
+      html:
+        '<div class="install-cmd">' +
+          '<span class="cmdtext">iwr -useb https://raw.githubusercontent.com/khanalsaroj/linuxcmd/main/main/install.ps1 <span class="op">|</span> iex</span>' +
+          '<button class="copy-btn" type="button" data-copy="installCommand">Copy</button>' +
+        "</div>" +
+        '<p class="install-note">' +
+          '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.4"/><path d="M8 4.9h.01M8 7.4v3.7"/></svg>' +
+          "<span>Downloads the release for your architecture, verifies its checksum, and installs to " +
+          "<code>%LOCALAPPDATA%\\Programs\\LinuxCmd</code>. Open a <strong>new</strong> Command Prompt afterwards, " +
+          "because PATH changes never reach a window that is already open.</span>" +
+        "</p>" +
+        '<ul class="envtable">' +
+          "<li><code>LINUXCMD_VERSION</code><span>Pin a release such as <code>v1.2.3</code> instead of taking the latest.</span></li>" +
+          "<li><code>LINUXCMD_INSTALL_DIR</code><span>Install somewhere else, for example <code>D:\\Tools\\LinuxCmd</code>.</span></li>" +
+          "<li><code>LINUXCMD_ENABLE_DOSKEY</code><span>Set to <code>1</code> to also enable bare <code>cd</code>, <code>mkdir</code>, <code>rmdir</code> and <code>echo</code>.</span></li>" +
+        "</ul>" +
+        '<p class="install-note"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.4"/><path d="M8 4.9h.01M8 7.4v3.7"/></svg>' +
+        "<span>Piping into <code>iex</code> cannot take script parameters, so these are environment variables " +
+        "you set before running the line above.</span></p>"
+    },
+    {
+      name: "Prebuilt zip",
+      html:
+        '<div class="install-cmd">' +
+          '<span class="cmdtext"><span class="c"># after extracting the release zip</span>\n.\\installer\\install.ps1 -EnableDoskeyOverrides</span>' +
+          '<button class="copy-btn" type="button" data-copy="zipCommand">Copy</button>' +
+        "</div>" +
+        '<p class="install-note">' +
+          '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.4"/><path d="M8 4.9h.01M8 7.4v3.7"/></svg>' +
+          "<span>Grab the zip for your architecture, which is <code>amd64</code> for almost everyone, from the " +
+          "releases page. Every release ships a <code>checksums.txt</code>. Extract it anywhere, then run the " +
+          "installer from inside the extracted folder. Both <code>-EnableDoskeyOverrides</code> and " +
+          "<code>-InstallDir</code> are optional.</span>" +
+        "</p>"
+    },
+    {
+      name: "From source",
+      html:
+        '<div class="install-cmd">' +
+          '<span class="cmdtext">git clone https://github.com/khanalsaroj/linuxcmd.git\ncd linuxcmd\n.\\scripts\\build.ps1\n.\\installer\\install.ps1</span>' +
+          '<button class="copy-btn" type="button" data-copy="sourceCommand">Copy</button>' +
+        "</div>" +
+        '<p class="install-note">' +
+          '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.4"/><path d="M8 4.9h.01M8 7.4v3.7"/></svg>' +
+          "<span>Requires Go 1.21 or newer. The build script produces <code>dist\\linuxcmd.exe</code> plus one " +
+          "launcher per command, and the installer hardlinks them onto your PATH.</span>" +
+        "</p>"
+    },
+    {
+      name: "Uninstall",
+      html:
+        '<div class="install-cmd">' +
+          '<span class="cmdtext">.\\installer\\uninstall.ps1</span>' +
+          '<button class="copy-btn" type="button" data-copy="uninstallCommand">Copy</button>' +
+        "</div>" +
+        '<p class="install-note">' +
+          '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.4"/><path d="M8 4.9h.01M8 7.4v3.7"/></svg>' +
+          "<span>Reverses everything the installer did: the PATH entry, the optional AutoRun hook, the " +
+          "<code>LINUXCMD_HOME</code> variable, and the installed files. Nothing outside <code>HKCU</code> is " +
+          "ever touched, and <code>cmd.exe</code> itself is never modified. Pass the same <code>-InstallDir</code> " +
+          "if you installed to a custom directory.</span>" +
+        "</p>"
+    }
+  ];
 
-  document.getElementById('copyInstallBtn').addEventListener('click', function(){
-    const btn = this;
-    const text = CONFIG.installCommand;
-    function ok(){
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(function(){ btn.textContent = original; }, 1800);
+  var COPY_TEXT = {
+    installCommand:   CONFIG.installCommand,
+    zipCommand:       ".\\installer\\install.ps1 -EnableDoskeyOverrides",
+    sourceCommand:    "git clone https://github.com/khanalsaroj/linuxcmd.git\ncd linuxcmd\n.\\scripts\\build.ps1\n.\\installer\\install.ps1",
+    uninstallCommand: ".\\installer\\uninstall.ps1"
+  };
+
+  var installTabs  = document.getElementById("installTabs");
+  var installPanel = document.getElementById("installPanel");
+
+  function showInstall(i){
+    installPanel.innerHTML = INSTALL[i].html;
+    Array.prototype.forEach.call(installPanel.querySelectorAll("[data-copy]"), function(btn){
+      btn.addEventListener("click", function(){ copy(btn, COPY_TEXT[btn.dataset.copy]); });
+    });
+  }
+
+  INSTALL.forEach(function(method, i){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "tab";
+    b.textContent = method.name;
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(installTabs.children, function(t){
+        t.setAttribute("aria-selected", t === b ? "true" : "false");
+      });
+      showInstall(i);
+    });
+    installTabs.appendChild(b);
+  });
+  showInstall(0);
+
+  function copy(btn, text){
+    function settle(label, ok){
+      btn.textContent = label;
+      btn.classList.toggle("done", !!ok);
+      setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1800);
     }
     if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(ok).catch(function(){ fallbackCopy(text, ok); });
+      navigator.clipboard.writeText(text)
+        .then(function(){ settle("Copied", true); })
+        .catch(function(){ legacyCopy(text, settle); });
     } else {
-      fallbackCopy(text, ok);
+      legacyCopy(text, settle);
     }
-  });
-
-  function fallbackCopy(text, cb){
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); } catch (e) {}
-    document.body.removeChild(ta);
-    if (cb) cb();
   }
 
-  /* ---------------------------------------------------------------
-   * Header scroll state + mobile nav
-   * ------------------------------------------------------------- */
-  const header = document.getElementById('site-header');
-  window.addEventListener('scroll', function(){
-    header.classList.toggle('scrolled', window.scrollY > 8);
-  }, { passive: true });
+  function legacyCopy(text, settle){
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    settle(ok ? "Copied" : "Press Ctrl+C", ok);
+  }
 
-  const navToggle = document.getElementById('navToggle');
-  const mobilePanel = document.getElementById('mobilePanel');
-  navToggle.addEventListener('click', function(){
-    const open = mobilePanel.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', String(open));
+  /* =============================================================
+   * Scroll-driven UI. IntersectionObserver only, never a scroll
+   * listener, so nothing runs per frame.
+   * =========================================================== */
+  var header = document.getElementById("site-header");
+  if ("IntersectionObserver" in window){
+    var sentinel = document.createElement("div");
+    sentinel.style.cssText = "position:absolute;top:0;height:8px;width:1px;pointer-events:none";
+    document.body.prepend(sentinel);
+    new IntersectionObserver(function(entries){
+      header.classList.toggle("is-stuck", !entries[0].isIntersecting);
+    }).observe(sentinel);
+
+    var reveals = document.querySelectorAll(".reveal");
+    if (reduceMotion){
+      Array.prototype.forEach.call(reveals, function(el){ el.classList.add("in"); });
+    } else {
+      var revealObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(e, i){
+          if (!e.isIntersecting) return;
+          e.target.style.setProperty("--i", String(i));
+          e.target.classList.add("in");
+          revealObserver.unobserve(e.target);
+        });
+      }, { threshold: .12, rootMargin: "0px 0px -8% 0px" });
+      Array.prototype.forEach.call(reveals, function(el){ revealObserver.observe(el); });
+    }
+
+    /* Active section in the nav, so the current place on the page is visible. */
+    var navLinks = {};
+    Array.prototype.forEach.call(document.querySelectorAll('.nav-links a[href^="#"]'), function(a){
+      navLinks[a.getAttribute("href").slice(1)] = a;
+    });
+    var spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var link = navLinks[e.target.id];
+        if (!link) return;
+        if (e.isIntersecting){
+          Object.keys(navLinks).forEach(function(k){ navLinks[k].removeAttribute("aria-current"); });
+          link.setAttribute("aria-current", "true");
+        }
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    Object.keys(navLinks).forEach(function(id){
+      var sec = document.getElementById(id);
+      if (sec) spy.observe(sec);
+    });
+  } else {
+    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(el){ el.classList.add("in"); });
+  }
+
+  /* ---------- Mobile navigation ---------- */
+  var navToggle  = document.getElementById("navToggle");
+  var mobilePanel = document.getElementById("mobilePanel");
+  navToggle.addEventListener("click", function(){
+    var open = mobilePanel.classList.toggle("open");
+    navToggle.setAttribute("aria-expanded", String(open));
+    navToggle.setAttribute("aria-label", open ? "Close navigation menu" : "Open navigation menu");
   });
-  mobilePanel.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click', function(){
-      mobilePanel.classList.remove('open');
-      navToggle.setAttribute('aria-expanded','false');
+  Array.prototype.forEach.call(mobilePanel.querySelectorAll("a"), function(a){
+    a.addEventListener("click", function(){
+      mobilePanel.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+      navToggle.setAttribute("aria-label", "Open navigation menu");
     });
   });
 })();

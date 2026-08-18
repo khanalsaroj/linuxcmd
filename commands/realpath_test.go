@@ -15,7 +15,7 @@ func TestRealpathCleansRelativePath(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("exit code = %d, stderr = %q", code, errOut)
 	}
-	want := filepath.Join(dir, "f.txt")
+	want := canonicalPath(t, filepath.Join(dir, "f.txt"))
 	if strings.TrimSpace(out) != want {
 		t.Errorf("realpath output = %q, want %q", strings.TrimSpace(out), want)
 	}
