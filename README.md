@@ -98,13 +98,54 @@ cmd.exe itself is never modified. If you installed to a custom directory, pass t
 
 ## Supported commands
 
-Filesystem: `ls`, `pwd`, `cd`, `mkdir`, `rmdir`, `cp`, `mv`, `rm`, `cat`, `touch`
-Shell utilities: `echo`, `clear`, `whoami`, `hostname`
-Search/text: `grep`, `find`
-System/network: `ping`, `ip`, `ps`, `kill`
+193 commands. `linuxcmd --list-commands` prints the authoritative list; the groupings below are just a map.
 
-Run `linuxcmd` with no arguments (or `linuxcmd --help`) for a live list with one-line summaries, generated from the
-actual command registry. `linuxcmd --version` (or `-v`) prints the installed version.
+- **Files and directories** — `ls` `cp` `mv` `rm` `mkdir` `rmdir` `ln` `find` `tree` `stat` `du` `df` `touch` `install`
+  `rsync` `shred` `truncate` `readlink` `realpath` `namei`
+- **Text processing** — `grep` `sed` `awk` `cut` `paste` `sort` `uniq` `tr` `head` `tail` `wc` `diff` `comm` `join`
+  `fold` `fmt` `column` `nl` `rev` `dos2unix` `unix2dos`
+- **Archives, encoding, digests** — `tar` `zip` `unzip` `gzip` `bzip2` `base64` `xxd` `od` `hexdump` `md5sum` `sha1sum`
+  `sha256sum` `cksum`
+- **System and processes** — `ps` `top` `pstree` `kill` `pgrep` `pkill` `free` `uptime` `uname` `lscpu` `lsmem` `lsblk`
+  `blkid` `vmstat` `iostat` `mount` `umount` `getfacl` `sudo` `su` `systemctl` `journalctl` `crontab`
+- **Networking** — `ping` `curl` `wget` `ip` `ifconfig` `ss` `netstat` `lsof` `dig` `host` `nslookup` `nc` `traceroute`
+  `arp` `route`
+- **Desktop integration** — `xclip` `xsel` `xdg-open` `open`
+- **Wrappers for installed tools** — `ssh` `scp` `sftp` `git` `make` `cmake` `gcc` `g++` `python3` `perl` `ruby` `node`
+  `npm` `jq` `rg` `fd` `vim` `nano` `tmux` `screen` `tcpdump` `nmap`
+
+Run `linuxcmd` with no arguments (or `linuxcmd --help`) for the live list with one-line summaries, generated from the
+actual command registry. `man COMMAND` gives the details for any one of them, including an **ON WINDOWS** section
+recording where that command's behavior diverges from Linux and why; `man -k KEYWORD` searches names and summaries.
+`linuxcmd --version` (or `-v`) prints the installed version.
+
+Per-command limitations are in the [command compatibility table](#command-compatibility-table).
+
+### Native commands vs. wrappers
+
+Almost every command is a native Go implementation built directly on Win32 APIs, so it works on a stock Windows machine
+with nothing else installed. A small, explicitly listed set are **wrappers**: they locate a separately installed
+Windows build of the real tool and hand off to it unchanged.
+
+Those tools — `ssh`, `make`, `gcc`, `python3`, `node`, `jq`, `vim` and the rest of the group above — already ship
+first-class Windows builds, and shipping a half-working clone of any of them would be worse than useless. What linuxcmd
+adds is:
+
+- the Linux name, so `python3` works where only `python.exe` exists;
+- resolution of the Windows-specific filename (`mingw32-make.exe`, `npm.cmd`, `py.exe -3`);
+- lookup in install directories that are routinely missing from `PATH` (`System32\OpenSSH`, `Program Files\CMake\bin`,
+  MSYS2 and Git for Windows' `usr\bin`);
+- an actionable message naming what to install when the tool is absent, instead of
+  `'ssh' is not recognized as an internal or external command`.
+
+Arguments, stdin/stdout/stderr and the exit code all pass through untouched, so interactive programs like `vim` and
+`ssh` get the real console.
+
+One consequence of the multicall design matters here. The installer creates one hardlink per command, so after
+installing there is an `ssh.exe` in `LINUXCMD_HOME` that *is* linuxcmd. If that directory precedes `System32` on
+`PATH`, a naive lookup would resolve straight back to this process and fork forever. The lookup therefore rejects any
+candidate that is the same file as the running executable, compared by file identity rather than by directory — a
+directory check alone would miss a hardlink placed elsewhere on `PATH`.
 
 ## Examples
 
@@ -283,6 +324,30 @@ hooks into), so this layer cannot change the behavior of existing scripts, inclu
   parity with typing habits, not missing functionality. The `Context{Stdin,Stdout,Stderr}` design in `internal/command`
   exists specifically so this can be added later without reworking commands.
 
+- **`sudo` starts a new console unless Windows' own `sudo` is installed.** Elevation crosses a security boundary, so an
+  elevated process cannot inherit the current console's handles; Windows gives it a fresh console instead. That means
+  `sudo ls > out.txt` leaves `out.txt` empty. Windows 11 ships a native `sudo.exe` that solves this properly with an
+  inline mode, and when it is present linuxcmd hands off to it so the behavior matches the system tool exactly.
+- **`rsync` is local-only and copies whole files.** The network protocol and the ssh transport are not implemented, and
+  a source or destination naming a remote host is rejected rather than mistaken for a filename. Files are compared by
+  size and modification time; the rolling-checksum delta transfer is not implemented, so a changed file is copied in
+  full.
+- **`lsof` reports network endpoints, not open files.** Enumerating a process's file handles on Windows requires
+  undocumented kernel interfaces and administrator rights; use Sysinternals `handle.exe` or Process Explorer for that.
+- **Wrapper commands need the real tool installed.** `ssh`, `make`, `python3`, `node` and the rest of that group locate
+  and run a separately installed Windows build (see [Native commands vs. wrappers](#native-commands-vs-wrappers)).
+- **Some Linux commands are deliberately absent.** These are not on a roadmap; each would be actively harmful as a
+  translation:
+  - `setfacl` — Windows ACLs carry deny entries, ordering and inheritance that `rwx` cannot express, so writing an ACL
+    through a POSIX-shaped interface would silently destroy access-control information. `getfacl` reads them safely.
+  - `fdisk`, `mkfs` — partition editing and formatting, where a translation bug destroys a disk. Use `diskpart` or
+    `Format-Volume`.
+  - `iptables` — Windows Firewall has no chains, tables or targets; a familiar name over an unfamiliar model would be a
+    lie. Use `netsh advfirewall`.
+  - `strace` — needs kernel ETW providers or a driver. Use Process Monitor.
+  - `useradd`, `usermod`, `userdel`, `passwd`, `groupadd` — account mutation is destructive, admin-only, and lossy
+    (Windows has SIDs, not uids). Use `net user` and `net localgroup`.
+
 ## Command compatibility table
 
 | Command    | Supported | Linux behavior                        | Windows implementation                                | Limitations                                                      |
@@ -435,6 +500,51 @@ hooks into), so this layer cannot change the behavior of existing scripts, inclu
 | `awk`      | Yes       | `-F`, `/pattern/`, `{print $N,...}`    | whitespace/`-F`-split fields                                            | no variables, arithmetic, user functions, or BEGIN/END              |
 | `openssl`  | Yes       | `rand -hex`, `dgst -sha256/-sha1/-md5` | Go `crypto/*`                                                          | small safe subset only, not a full OpenSSL CLI                     |
 | `git`      | Yes       | transparent wrapper                    | locates the real `git.exe` on `PATH` (skipping linuxcmd's own dir)     | requires Git for Windows to be separately installed                 |
+| `dos2unix`                     | Yes         | `-k -q -f -n`, in place or as a filter    | atomic rewrite of CRLF to LF                                       | skips files containing NUL unless `-f`                             |
+| `unix2dos`                     | Yes         | `-k -q -f -n`, in place or as a filter    | normalizes to LF first, then expands                               | same binary-file guard; idempotent on CRLF files                   |
+| `od`                           | Yes         | `-A -t -j -N -v`, `-b -c -d -o -x -s -i -l` | native formatter, little-endian words                              | one `-t` format per run (GNU allows several)                       |
+| `hexdump`                      | Yes         | `-C -b -c -d -o -x -n -s -v`              | native formatter                                                   | no `-e` format-string language                                     |
+| `namei`                        | Yes         | `-l -m -o -x`                             | walks each component with `os.Lstat`                               | shows the Linux-to-Windows path translation                        |
+| `man`                          | Partial     | `-k -f -w`                                | docs generated from the command registry                           | documents linuxcmd's own commands, not GNU manuals                 |
+| `xclip`                        | Yes         | `-i -o -r -selection`                     | Win32 clipboard (`CF_UNICODETEXT`)                                 | Windows has one clipboard; X11 selections collapse into it         |
+| `xsel`                         | Yes         | `-i -o -c -b -p -s`                       | same clipboard as `xclip`                                          | same single-selection note                                         |
+| `xdg-open`                     | Yes         | open a file or URL in the default app     | `ShellExecuteW`                                                    | xdg-open's documented exit codes are preserved                     |
+| `open`                         | Yes         | alias for `xdg-open`                      | `ShellExecuteW`                                                    | provided because macOS users reach for this name                   |
+| `ifconfig`                     | Partial     | `-a -s`, per-interface detail             | `net.Interfaces` + `GetIfEntry` counters                           | read-only; configure with `netsh` or `Set-NetIPAddress`            |
+| `lsof`                         | Partial     | `-i[:PORT] -p -t -n -P`                   | `GetExtendedTcpTable`/`GetExtendedUdpTable`                        | network endpoints only; no open-file handles                       |
+| `lsblk`                        | Yes         | `-b -f`                                   | `GetLogicalDriveStrings` + storage ioctls                          | volumes with no drive letter are not listed                        |
+| `blkid`                        | Yes         | `-s TAG -o value`                         | `GetVolumeInformationW`                                            | UUID is the 32-bit volume serial, not a filesystem UUID            |
+| `vmstat`                       | Partial     | `DELAY [COUNT]`, `-S -n`                  | `GlobalMemoryStatusEx` + PDH counters                              | `b`, `buff`, `wa`, `st` have no Windows counterpart and read 0     |
+| `iostat`                       | Partial     | `-c -d -k -m`, `DELAY [COUNT]`            | PDH counters + `IOCTL_DISK_PERFORMANCE`                            | `%iowait`/`%steal` read 0; Windows folds I/O wait into idle        |
+| `getfacl`                      | Yes         | `-n -c`                                   | `GetNamedSecurityInfoW` + ACE walk                                 | read-only by design; `setfacl` is deliberately absent              |
+| `mount`                        | Partial     | list mounts, attach a share               | volume enumeration + `WNetAddConnection2`                          | network shares only; no image or arbitrary-path mounts             |
+| `umount`                       | Partial     | detach a mount                            | `WNetCancelConnection2`                                            | mapped drives only; local volumes need `mountvol` and admin        |
+| `sudo`                         | Partial     | run a command elevated                    | Windows 11 `sudo.exe` if present, else UAC                         | without the system sudo the command gets a NEW console             |
+| `su`                           | Partial     | `-c`, run as another user                 | wraps `runas.exe`                                                  | always prompts interactively; passwords cannot be piped            |
+| `rsync`                        | Partial     | `-a -r -v -n -u -t --delete --exclude`    | size+mtime comparison, whole-file copy                             | local paths only; no delta algorithm and no ssh transport          |
+| `md5sum`                       | Yes         | digest files, `-c` to verify              | `crypto/md5`                                                       | —                                                                  |
+| `sha1sum`                      | Yes         | digest files, `-c` to verify              | `crypto/sha1`                                                      | —                                                                  |
+| `ssh`                          | Yes         | transparent wrapper                       | finds `ssh.exe`, incl. `System32\OpenSSH`                          | needs the OpenSSH Client optional feature                          |
+| `scp`                          | Yes         | transparent wrapper                       | same lookup as `ssh`                                               | needs the OpenSSH Client optional feature                          |
+| `sftp`                         | Yes         | transparent wrapper                       | same lookup as `ssh`                                               | needs the OpenSSH Client optional feature                          |
+| `make`                         | Yes         | transparent wrapper                       | finds `make.exe`/`mingw32-make.exe`/`gnumake.exe`                  | never falls back to `nmake.exe`, which is not GNU make             |
+| `cmake`                        | Yes         | transparent wrapper                       | finds `cmake.exe`, incl. `Program Files\CMake\bin`                 | needs CMake installed                                              |
+| `gcc`                          | Yes         | transparent wrapper                       | finds `gcc.exe` via PATH, MSYS2, MinGW, Git                        | needs a GCC toolchain installed                                    |
+| `g++`                          | Yes         | transparent wrapper                       | finds `g++.exe` via PATH, MSYS2, MinGW, Git                        | needs a GCC toolchain installed                                    |
+| `python3`                      | Yes         | transparent wrapper                       | finds `python3.exe`, `python.exe`, or `py.exe -3`                  | needs Python installed                                             |
+| `perl`                         | Yes         | transparent wrapper                       | finds `perl.exe`, incl. Git for Windows' copy                      | needs Perl installed                                               |
+| `ruby`                         | Yes         | transparent wrapper                       | finds `ruby.exe`                                                   | needs RubyInstaller                                                |
+| `node`                         | Yes         | transparent wrapper                       | finds `node.exe`, incl. `Program Files\nodejs`                     | needs Node.js installed                                            |
+| `npm`                          | Yes         | transparent wrapper                       | finds `npm.cmd`, run through `COMSPEC`                             | needs Node.js; `.cmd` shims cannot be launched directly            |
+| `jq`                           | Yes         | transparent wrapper                       | finds `jq.exe` or `jq-win64.exe`                                   | needs jq installed                                                 |
+| `rg`                           | Yes         | transparent wrapper                       | finds `rg.exe`                                                     | needs ripgrep installed                                            |
+| `fd`                           | Yes         | transparent wrapper                       | finds `fd.exe`                                                     | needs fd installed                                                 |
+| `vim`                          | Yes         | transparent wrapper                       | finds `vim.exe`/`gvim.exe`, incl. Git's copy                       | needs Vim installed; runs on the real console                      |
+| `nano`                         | Yes         | transparent wrapper                       | finds `nano.exe` via MSYS2 or Git for Windows                      | needs nano installed                                               |
+| `tmux`                         | Yes         | transparent wrapper                       | finds `tmux.exe` via MSYS2 or Cygwin                               | needs MSYS2/Cygwin; no native Windows tmux exists                  |
+| `screen`                       | Yes         | transparent wrapper                       | finds `screen.exe` via Cygwin or MSYS2                             | needs Cygwin/MSYS2                                                 |
+| `tcpdump`                      | Yes         | transparent wrapper                       | finds `tcpdump.exe` or `windump.exe`                               | needs Npcap + WinDump; `pktmon` is not a substitute                |
+| `nmap`                         | Yes         | transparent wrapper                       | finds `nmap.exe`, incl. `Program Files\Nmap`                       | needs Nmap for Windows                                             |
 
 ## Development
 

@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Linux commands on Windows CMD | linuxcmd</title>
-<meta name="description" content="linuxcmd puts 150 Linux commands (ls, grep, sed, awk, tar, curl and more) into the normal Windows Command Prompt. One Go binary, no WSL, no Cygwin, no virtual machine.">
+<meta name="description" content="linuxcmd puts 193 Linux commands (ls, grep, sed, awk, tar, curl and more) into the normal Windows Command Prompt. One Go binary, no WSL, no Cygwin, no virtual machine.">
 <meta name="theme-color" content="#0a0c10">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://khanalsaroj.github.io/linuxcmd/">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="linuxcmd: Linux commands, native on Windows">
-<meta property="og:description" content="150 Linux commands running as real Windows executables inside the Command Prompt you already have open. No WSL, no Cygwin, no virtual machine.">
+<meta property="og:description" content="193 Linux commands running as real Windows executables inside the Command Prompt you already have open. No WSL, no Cygwin, no virtual machine.">
 <meta property="og:url" content="https://khanalsaroj.github.io/linuxcmd/">
 <meta property="og:image" content="https://opengraph.githubassets.com/1/khanalsaroj/linuxcmd">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="linuxcmd: Linux commands, native on Windows">
-<meta name="twitter:description" content="150 Linux commands running as real Windows executables inside the Command Prompt you already have open.">
+<meta name="twitter:description" content="193 Linux commands running as real Windows executables inside the Command Prompt you already have open.">
 <meta name="twitter:image" content="https://opengraph.githubassets.com/1/khanalsaroj/linuxcmd">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0c10'/%3E%3Ctext x='11' y='42' font-family='monospace' font-size='30' fill='%23ffb454'%3E%3E_%3C/text%3E%3C/svg%3E">
@@ -577,7 +577,7 @@
   <!-- ============ STAT BAND ============ -->
   <div class="wrap">
     <dl class="statband reveal">
-      <div><dd class="num">150</dd><dt>Commands</dt></div>
+      <div><dd class="num">193</dd><dt>Commands</dt></div>
       <div><dd class="num">1</dd><dt>Compiled binary</dt></div>
       <div><dd class="num">3.7<span class="unit">MB</span></dd><dt>Total on disk</dt></div>
       <div><dd class="num">0</dd><dt>Distros to maintain</dt></div>
@@ -621,7 +621,7 @@
   <section id="commands">
     <div class="wrap">
       <div class="sec-head reveal">
-        <h2>All 150 commands, implemented and shipping.</h2>
+        <h2>All 193 commands, implemented and shipping.</h2>
         <p>
           This list is generated from the same command registry the build script and installer
           read, so it cannot drift from what actually ships.
@@ -652,7 +652,7 @@
   <section id="how-it-works">
     <div class="wrap">
       <div class="sec-head reveal">
-        <h2>One binary, 150 hardlinks.</h2>
+        <h2>One binary, 193 hardlinks.</h2>
         <p>
           Exactly one Go program is compiled. Every command on your <code>PATH</code> is a hardlink to
           that same file, which reads its own invoked filename to decide what to run. BusyBox uses
@@ -671,7 +671,7 @@
         <ul class="why reveal">
           <li>
             <h3>Small on disk</h3>
-            <p>Hardlinks share the same on-disk data, so 150 separate executables cost the space of one, not 150 copies.</p>
+            <p>Hardlinks share the same on-disk data, so 193 separate executables cost the space of one, not 193 copies.</p>
           </li>
           <li>
             <h3>Fast to start</h3>
@@ -965,7 +965,7 @@
   "name":"linuxcmd",
   "applicationCategory":"DeveloperApplication",
   "operatingSystem":"Windows 10, Windows 11",
-  "description":"A Linux command compatibility layer for the native Windows cmd.exe prompt, written in Go. Ships 150 commands as real Windows executables with no WSL, Cygwin, or virtual machine.",
+  "description":"A Linux command compatibility layer for the native Windows cmd.exe prompt, written in Go. Ships 193 commands as real Windows executables with no WSL, Cygwin, or virtual machine.",
   "url":"https://khanalsaroj.github.io/linuxcmd/",
   "codeRepository":"https://github.com/khanalsaroj/linuxcmd",
   "programmingLanguage":"Go",
@@ -1019,6 +1019,7 @@
     ["base64", "encode or decode base64", "text"],
     ["basename", "strip directory and suffix from a path", "files"],
     ["bc", "evaluate arithmetic expressions", "system"],
+    ["blkid", "show volume identifiers and filesystem types", "system"],
     ["bzip2", "decompress .bz2 files (compression unsupported)", "archive"],
     ["cat", "concatenate and print files", "files"],
     ["cd", "resolve a directory path (see README: cannot change the parent shell's directory on its own)", "files"],
@@ -1027,6 +1028,7 @@
     ["chown", "change file owner (wraps icacls /setowner)", "files"],
     ["cksum", "print CRC checksum and byte count", "hash"],
     ["clear", "clear the terminal screen", "system"],
+    ["cmake", "generate build files via the installed CMake", "wrapper"],
     ["cmp", "compare two files byte by byte", "text"],
     ["column", "align delimiter-separated input into columns", "text"],
     ["comm", "compare two sorted files line by line", "text"],
@@ -1042,6 +1044,7 @@
     ["dig", "query DNS records for a name", "network"],
     ["dirname", "print the directory component of a path", "files"],
     ["dmesg", "show recent system log messages", "system"],
+    ["dos2unix", "convert DOS line endings (CRLF) to Unix (LF)", "text"],
     ["du", "estimate file space usage", "files"],
     ["echo", "display a line of text", "text"],
     ["env", "list environment variables or run a command with overrides", "system"],
@@ -1049,50 +1052,71 @@
     ["expr", "evaluate a simple integer, string, or regex expression", "system"],
     ["factor", "print prime factors of an integer", "system"],
     ["false", "always fail", "system"],
+    ["fd", "find files via the installed fd", "wrapper"],
     ["file", "identify a file's type", "files"],
     ["find", "search for files in a directory tree", "files"],
     ["fmt", "reflow plain-text paragraphs", "text"],
     ["fold", "wrap each line to a given width", "text"],
     ["free", "report physical and virtual memory usage", "system"],
+    ["g++", "compile C++ via the installed GCC toolchain", "wrapper"],
+    ["gcc", "compile C via the installed GCC toolchain", "wrapper"],
     ["getconf", "print a small set of system configuration values", "system"],
     ["getent", "query hosts, passwd, or group databases", "system"],
-    ["git", "wrap the installed git.exe", "system"],
+    ["getfacl", "show Windows access-control entries for a file", "files"],
+    ["git", "wrap the installed git.exe", "wrapper"],
     ["grep", "search text using patterns", "text"],
     ["groups", "print the current user's group memberships", "system"],
     ["gzip", "compress or decompress files with gzip", "archive"],
     ["head", "print the first part of files", "text"],
     ["help", "show usage for linuxcmd commands", "system"],
+    ["hexdump", "display file contents in hex, decimal, or octal", "text"],
     ["host", "look up a hostname's DNS records", "network"],
     ["hostid", "print a machine-derived identifier", "system"],
     ["hostname", "print the system hostname", "system"],
     ["hostnamectl", "show host metadata", "system"],
     ["id", "print user and group identity", "system"],
+    ["ifconfig", "display network interface configuration", "network"],
     ["install", "copy a file, creating parent directories", "files"],
+    ["iostat", "report CPU and disk I/O statistics", "system"],
     ["ip", "show network interfaces and addresses", "network"],
     ["join", "join lines of two sorted files on a common field", "text"],
     ["journalctl", "show recent Application log entries", "system"],
+    ["jq", "query and transform JSON via the installed jq", "wrapper"],
     ["kill", "terminate a process by PID (no signal distinction on Windows)", "process"],
     ["last", "show recent sign-in events from the Security event log", "system"],
     ["less", "page through file contents (more-equivalent subset)", "text"],
     ["ln", "create hard or symbolic links", "files"],
     ["ls", "list directory contents", "files"],
+    ["lsblk", "list disks and the volumes on them", "system"],
     ["lscpu", "display CPU architecture information", "system"],
     ["lsmem", "display memory ranges and totals", "system"],
+    ["lsof", "list open network endpoints and their processes", "network"],
+    ["make", "run Makefiles via the installed GNU make", "wrapper"],
+    ["man", "show documentation for a linuxcmd command", "system"],
     ["md5sum", "print or check md5sum checksums", "hash"],
     ["mkdir", "create directories", "files"],
     ["mkfifo", "create a FIFO (unsupported on Windows)", "files"],
     ["mktemp", "create a unique temporary file or directory", "files"],
     ["more", "page through file contents", "text"],
+    ["mount", "list mounted volumes or attach a network share", "system"],
     ["mv", "move/rename files and directories", "files"],
+    ["namei", "follow a pathname until a terminal point is found", "files"],
+    ["nano", "edit files in the installed nano", "wrapper"],
     ["nc", "basic TCP/UDP client and listener", "network"],
     ["netstat", "show network connections and listening sockets", "network"],
     ["nice", "run a command with an adjusted scheduling priority", "process"],
     ["nl", "number lines of a file", "text"],
+    ["nmap", "scan hosts and services via the installed Nmap", "wrapper"],
+    ["node", "run the installed Node.js runtime", "wrapper"],
     ["nohup", "run a command immune to console hangups", "process"],
+    ["npm", "manage Node.js packages via the installed npm", "wrapper"],
     ["nproc", "print the number of available processors", "system"],
     ["nslookup", "query DNS for a name's addresses", "network"],
+    ["od", "dump files in octal, hex, decimal, or character form", "text"],
+    ["open", "open a file or URL in the default application", "desktop"],
     ["openssl", "rand/dgst subcommands (small safe subset of OpenSSL)", "hash"],
     ["paste", "merge corresponding lines of files", "text"],
+    ["perl", "run the installed Perl interpreter", "wrapper"],
     ["pgrep", "find process IDs by name", "process"],
     ["ping", "send ICMP echo requests to a host", "network"],
     ["pkill", "terminate processes by name", "process"],
@@ -1102,17 +1126,24 @@
     ["ps", "report a snapshot of current processes", "process"],
     ["pstree", "print a process tree", "process"],
     ["pwd", "print working directory", "files"],
+    ["python3", "run the installed Python 3 interpreter", "wrapper"],
     ["readlink", "print a symbolic link's target", "files"],
     ["realpath", "print a resolved absolute path", "files"],
     ["reboot", "restart the machine (shutdown -r now)", "system"],
     ["renice", "change a running process's scheduling priority", "process"],
     ["rev", "reverse the characters of each line", "text"],
+    ["rg", "search recursively via the installed ripgrep", "wrapper"],
     ["rm", "remove files and directories", "files"],
     ["rmdir", "remove empty directories", "files"],
     ["route", "show or modify the IP routing table", "network"],
+    ["rsync", "synchronize files and directories locally", "files"],
+    ["ruby", "run the installed Ruby interpreter", "wrapper"],
+    ["scp", "copy files over SSH via the installed OpenSSH client", "wrapper"],
+    ["screen", "run persistent terminal sessions via the installed screen", "wrapper"],
     ["sed", "stream-edit lines (subset: one s/// or d command)", "text"],
     ["seq", "print a numeric sequence", "system"],
     ["service", "control a Windows service (NAME status/start/stop)", "system"],
+    ["sftp", "transfer files over SSH via the installed OpenSSH client", "wrapper"],
     ["sha1sum", "print or check sha1sum checksums", "hash"],
     ["sha256sum", "print or check sha256sum checksums", "hash"],
     ["shred", "overwrite a file with random data before deleting", "files"],
@@ -1122,18 +1153,23 @@
     ["sort", "sort lines of text", "text"],
     ["split", "split a file into pieces", "text"],
     ["ss", "show sockets (netstat-based approximation)", "network"],
+    ["ssh", "run the installed OpenSSH client", "wrapper"],
     ["stat", "display file metadata", "files"],
     ["strings", "extract printable sequences from a file", "text"],
     ["stty", "report or change console mode flags", "system"],
+    ["su", "start a shell as another user", "system"],
+    ["sudo", "run a command with administrator rights", "system"],
     ["sync", "flush file system buffers (no-op on this build)", "files"],
     ["systemctl", "control Windows services (status/start/stop/restart)", "system"],
     ["tac", "print lines in reverse order", "text"],
     ["tail", "print the last part of files", "text"],
     ["tar", "create or extract tar archives", "archive"],
+    ["tcpdump", "capture packets via the installed tcpdump or WinDump", "wrapper"],
     ["tee", "copy stdin to stdout and files", "text"],
     ["test", "evaluate a conditional expression", "system"],
     ["time", "run a command and report elapsed time", "process"],
     ["timeout", "run a command with a time limit", "process"],
+    ["tmux", "run persistent terminal sessions via the installed tmux", "wrapper"],
     ["top", "display a refreshing process list", "process"],
     ["touch", "create files / update timestamps", "files"],
     ["tr", "translate or delete characters", "text"],
@@ -1143,12 +1179,16 @@
     ["truncate", "shrink or extend a file to a given size", "files"],
     ["tty", "print the terminal connected to standard input", "system"],
     ["umask", "report a compatibility file-creation mask (does not persist to the parent shell)", "files"],
+    ["umount", "detach a mapped network drive", "system"],
     ["uname", "print system information", "system"],
     ["unexpand", "convert spaces to tabs", "text"],
     ["uniq", "report or filter out repeated adjacent lines", "text"],
+    ["unix2dos", "convert Unix line endings (LF) to DOS (CRLF)", "text"],
     ["unzip", "extract a ZIP archive", "archive"],
     ["uptime", "report how long the system has been running", "system"],
     ["users", "print interactive session usernames", "system"],
+    ["vim", "edit files in the installed Vim", "wrapper"],
+    ["vmstat", "report memory, paging, and CPU activity", "system"],
     ["w", "show who is logged in and system uptime", "system"],
     ["watch", "re-run a command periodically", "process"],
     ["wc", "count lines, words, and bytes", "text"],
@@ -1158,6 +1198,9 @@
     ["who", "list active sessions", "system"],
     ["whoami", "print the current user name", "system"],
     ["xargs", "build and run commands from stdin", "process"],
+    ["xclip", "copy to or paste from the Windows clipboard", "desktop"],
+    ["xdg-open", "open a file or URL in the default application", "desktop"],
+    ["xsel", "read or set the Windows clipboard", "desktop"],
     ["xxd", "hex dump (or reverse) a file", "text"],
     ["xz", "XZ compression (not supported in this build)", "archive"],
     ["yes", "repeatedly print a line", "system"],
@@ -1166,9 +1209,10 @@
 
   var CATEGORY_LABELS = {
     all:"all", files:"files", text:"text", process:"process",
-    network:"network", archive:"archive", hash:"checksums", system:"system"
+    network:"network", archive:"archive", hash:"checksums", system:"system",
+    desktop:"desktop", wrapper:"wrappers"
   };
-  var CATEGORY_ORDER = ["all","files","text","process","network","archive","hash","system"];
+  var CATEGORY_ORDER = ["all","files","text","process","network","archive","hash","system","desktop","wrapper"];
 
   var gridEl   = document.getElementById("cmdGrid");
   var chipsEl  = document.getElementById("cmdChips");
